@@ -277,24 +277,37 @@
       </Transition>
     </Teleport>
 
-    <div class="map-controls absolute top-4 right-2 md:right-4 lg:right-20 bg-white/95 dark:bg-gray-900/95 text-sm p-2 md:p-4 rounded-lg shadow w-44 md:w-80 backdrop-blur">
+    <div
+      class="map-controls absolute top-4 left-2 md:left-4 lg:left-20 bg-white/95 dark:bg-gray-900/95 text-sm p-2 md:p-4 rounded-lg shadow w-44 md:w-80 backdrop-blur"
+      :class="{ 'md:hidden': showSelectedPanel }"
+    >
 
       <details class="map-legend-details bg-transparent">
-        <summary class="font-semibold cursor-pointer text-xs md:text-sm">Legend ▾</summary>
+        <summary class="flex items-center justify-between font-semibold cursor-pointer text-xs md:text-sm">
+          <span>{{ m.mapUi.legend }}</span>
+          <svg class="legend-chevron h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
         <div class="mt-1 md:mt-2 space-y-1 md:space-y-2">
-          <div class="flex items-center gap-1.5 md:gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid #ffffff;flex-shrink:0"></span><span class="text-xs md:text-sm">Available</span></div>
-          <div class="flex items-center gap-1.5 md:gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;border:2px solid #ffffff;flex-shrink:0"></span><span class="text-xs md:text-sm">Occupied</span></div>
-          <div class="flex items-center gap-1.5 md:gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#ffffff;display:inline-block;border:2px solid #ef4444;flex-shrink:0"></span><span class="text-xs md:text-sm">Running</span></div>
+          <div class="flex items-center gap-1.5 md:gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid #ffffff;flex-shrink:0"></span><span class="text-xs md:text-sm">{{ m.mapUi.available }}</span></div>
+          <div class="flex items-center gap-1.5 md:gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;border:2px solid #ffffff;flex-shrink:0"></span><span class="text-xs md:text-sm">{{ m.mapUi.occupied }}</span></div>
+          <div class="flex items-center gap-1.5 md:gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#ffffff;display:inline-block;border:2px solid #ef4444;flex-shrink:0"></span><span class="text-xs md:text-sm">{{ m.mapUi.running }}</span></div>
         </div>
       </details>
 
       <details class="map-legend-details bg-transparent mt-2 md:mt-3 rounded border border-white/5 shadow-sm">
         <summary class="flex items-center justify-between font-semibold cursor-pointer px-1 md:px-2 py-0.5 md:py-1 text-xs md:text-sm">
-          <span>Nearby</span>
-          <span class="text-xs text-gray-400">≤2km</span>
+          <span class="flex items-center gap-2">
+            <span>{{ m.mapUi.nearby }}</span>
+            <span class="text-xs text-gray-400">{{ m.mapUi.radius2km }}</span>
+          </span>
+          <svg class="legend-chevron h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
         </summary>
         <div class="mt-1 md:mt-2 px-0.5 md:px-1">
-          <div v-if="nearbyAvailable.length === 0" class="text-xs text-gray-400">Cap vehicle proper.</div>
+          <div v-if="nearbyAvailable.length === 0" class="text-xs text-gray-400">{{ m.mapUi.noNearbyVehicles }}</div>
           <ul v-else class="space-y-1 max-h-32 md:max-h-48 overflow-y-auto">
             <li v-for="v in nearbyAvailable.slice(0,5)" :key="v.id" class="flex items-center justify-between gap-2 p-1 rounded-md hover:bg-white/10 cursor-pointer transition-colors" @click="onNearbyClick(v)">
               <div class="flex items-center gap-1.5 min-w-0">
@@ -320,9 +333,11 @@ import { useRoute } from 'vue-router'
 import { useMap } from '@/modules/map/composables/useMap'
 import { useBookingStore } from '@/stores/bookingStore'
 import { toast } from 'vue3-toastify'
+import { useI18n } from '@/i18n'
 
 const route = useRoute()
-const { mapContainer, map, vehicles, markers, initMap, fetchVehicles, setUserLocation, destroyMap, rawVehicles, userLocation, _internal, centerOnVehicle, setOnVehicleClick, setSelectedVehicle, createVehicleIcon, markVehicleAsBooked } = useMap()
+const { m } = useI18n()
+const { mapContainer, map, vehicles, markers, initMap, fetchVehicles, startPolling, setUserLocation, destroyMap, rawVehicles, userLocation, _internal, centerOnVehicle, setOnVehicleClick, setSelectedVehicle, createVehicleIcon, markVehicleAsBooked } = useMap()
 const bookingStore = useBookingStore()
 let userMarker: any = null
 
@@ -450,6 +465,7 @@ onMounted(() => {
           map.value.setView([lat, lng], 15)
         }
         fetchVehicles('/vehicles').catch(err => console.error(err))
+        startPolling('/vehicles', 8000)
         // try to grab userMarker via exposed internal function
         try { userMarker = _internal?.getUserMarker?.() ?? null } catch { userMarker = null }
         // compute nearby from user location
@@ -462,6 +478,7 @@ onMounted(() => {
           map.value.setView([40.7095, 0.5795], 13)
         }
         fetchVehicles('/vehicles').catch(err => console.error(err))
+        startPolling('/vehicles', 8000)
         setTimeout(() => computeNearbyAvailable(), 600)
       },
       { enableHighAccuracy: true }
@@ -472,6 +489,7 @@ onMounted(() => {
       map.value.setView([40.7095, 0.5795], 13)
     }
     fetchVehicles('/vehicles').catch(err => console.error(err))
+    startPolling('/vehicles', 8000)
     setTimeout(() => computeNearbyAvailable(), 600)
   }
 
@@ -715,7 +733,19 @@ onUnmounted(() => {
   width: 18rem;
   font-size: 0.875rem;
 }
-.map-controls .map-legend-details summary { padding: 0 }
+.map-controls .map-legend-details summary {
+  padding: 0;
+  list-style: none;
+}
+.map-controls .map-legend-details summary::-webkit-details-marker {
+  display: none;
+}
+.map-controls .legend-chevron {
+  transition: transform 0.2s ease;
+}
+.map-controls .map-legend-details[open] .legend-chevron {
+  transform: rotate(180deg);
+}
 .map-controls .map-legend-details ul { padding: 0 }
 .map-controls .map-legend-details li { padding: 0 }
 

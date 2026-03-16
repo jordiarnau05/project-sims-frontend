@@ -4,8 +4,8 @@
 
       <!-- Capçalera -->
       <div class="mb-8">
-        <h1 class="text-2xl font-bold text-white">Les meves reserves</h1>
-        <p class="text-sm text-gray-400 mt-0.5">Gestiona els teus lloguers de vehicle</p>
+        <h1 class="text-2xl font-bold text-white">{{ m.bookingsUi.title }}</h1>
+        <p class="text-sm text-gray-400 mt-0.5">{{ m.bookingsUi.subtitle }}</p>
       </div>
 
       <!-- Loading -->
@@ -20,17 +20,17 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
-        <p class="text-white font-semibold mb-1">Cap reserva activa</p>
-        <p class="text-sm text-gray-400 mb-6">Ves al mapa per reservar un vehicle disponible</p>
+        <p class="text-white font-semibold mb-1">{{ m.bookingsUi.emptyTitle }}</p>
+        <p class="text-sm text-gray-400 mb-6">{{ m.bookingsUi.emptySubtitle }}</p>
         <RouterLink to="/" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm">
-          Veure mapa de vehicles
+          {{ m.bookingsUi.seeMap }}
         </RouterLink>
       </div>
 
       <template v-else>
         <!-- SECCIÓ: Actives i pendents -->
         <section v-if="activeAndPendingBookings.length > 0" class="mb-8">
-          <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">En curs i properes</h2>
+          <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{{ m.bookingsUi.sectionUpcoming }}</h2>
           <div class="space-y-3">
             <div
               v-for="booking in activeAndPendingBookings"
@@ -76,24 +76,24 @@
                 <!-- Info contextual -->
                 <div v-if="booking.status === 'active'" class="flex items-center gap-2 bg-blue-900/20 rounded-xl px-3 py-2 mb-3">
                   <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></span>
-                  <span class="text-xs font-medium text-blue-300">Vehicle en ús</span>
-                  <span v-if="booking.trip?.engine_started_at" class="text-xs text-blue-500 ml-auto">Des de {{ formatTimeOnly(booking.trip.engine_started_at) }}</span>
+                  <span class="text-xs font-medium text-blue-300">{{ m.bookingsUi.activeVehicleInUse }}</span>
+                  <span v-if="booking.trip?.engine_started_at" class="text-xs text-blue-500 ml-auto">{{ m.bookingsUi.activeSince }} {{ formatTimeOnly(booking.trip.engine_started_at) }}</span>
                 </div>
 
                 <div v-else-if="booking.status === 'pending'" class="flex items-center gap-2 mb-3 rounded-xl px-3 py-2" :class="isDeadlineNear(booking) ? 'bg-red-900/20' : 'bg-gray-700/50'">
                   <svg class="h-4 w-4 shrink-0" :class="isDeadlineNear(booking) ? 'text-red-400' : 'text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   <span class="text-xs font-medium" :class="isDeadlineNear(booking) ? 'text-red-300' : 'text-gray-300'">{{ timeUntilStart(booking) }}</span>
-                  <span v-if="booking.activation_deadline" class="text-xs text-gray-400 ml-auto">Activa fins {{ formatTimeOnly(booking.activation_deadline) }}</span>
+                  <span v-if="booking.activation_deadline" class="text-xs text-gray-400 ml-auto">{{ m.bookingsUi.activateUntil }} {{ formatTimeOnly(booking.activation_deadline) }}</span>
                 </div>
 
                 <!-- Dates -->
                 <div class="grid grid-cols-2 gap-2 mb-3">
                   <div class="bg-gray-800 rounded-xl p-2.5">
-                    <p class="text-xs text-gray-400 mb-0.5">Inici</p>
+                    <p class="text-xs text-gray-400 mb-0.5">{{ m.bookingsUi.start }}</p>
                     <p class="text-xs font-semibold text-white">{{ formatDateCompact(booking.scheduled_start) }}</p>
                   </div>
                   <div v-if="booking.scheduled_end" class="bg-gray-800 rounded-xl p-2.5">
-                    <p class="text-xs text-gray-400 mb-0.5">Fi</p>
+                    <p class="text-xs text-gray-400 mb-0.5">{{ m.bookingsUi.end }}</p>
                     <p class="text-xs font-semibold text-white">{{ formatDateCompact(booking.scheduled_end) }}</p>
                   </div>
                 </div>
@@ -104,11 +104,11 @@
                     v-if="booking.status === 'pending'"
                     @click="initCancelBooking(booking.id)"
                     class="flex-1 bg-red-900/20 hover:bg-red-900/40 text-red-400 text-sm font-semibold py-2 rounded-xl transition-colors"
-                  >Cancel·lar</button>
+                  >{{ m.bookingsUi.cancel }}</button>
                   <button
                     @click="viewDetails(booking)"
                     class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-semibold py-2 rounded-xl transition-colors"
-                  >Detalls</button>
+                  >{{ m.bookingsUi.details }}</button>
                 </div>
               </div>
             </div>
@@ -117,7 +117,7 @@
 
         <!-- SECCIÓ: Completades -->
         <section v-if="completedBookings.length > 0" class="mb-8">
-          <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Historial</h2>
+          <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{{ m.bookingsUi.sectionHistory }}</h2>
           <div class="space-y-2">
             <div
               v-for="booking in completedBookings"
@@ -136,7 +136,7 @@
               </div>
               <div class="text-right shrink-0">
                 <p class="font-bold text-white text-sm">{{ getBookingPrice(booking) !== 'Pendent' ? getBookingPrice(booking) + '€' : '—' }}</p>
-                <p class="text-xs text-green-400">Completada</p>
+                <p class="text-xs text-green-400">{{ m.bookingsUi.completed }}</p>
               </div>
             </div>
           </div>
@@ -151,7 +151,7 @@
             <svg class="h-3.5 w-3.5 transition-transform duration-200" :class="showCancelled ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
             </svg>
-            Cancel·lades ({{ cancelledBookings.length }})
+            {{ m.bookingsUi.sectionCancelled }} ({{ cancelledBookings.length }})
           </button>
           <Transition name="fade">
             <div v-if="showCancelled" class="space-y-2">
@@ -170,7 +170,7 @@
                   <p class="font-semibold text-gray-300 text-sm">{{ booking.vehicle?.license_plate || '—' }}</p>
                   <p class="text-xs text-gray-400 truncate">{{ formatDateCompact(booking.scheduled_start) }} · {{ booking.vehicle?.brand }} {{ booking.vehicle?.model }}</p>
                 </div>
-                <p class="text-xs text-red-400 shrink-0">Cancel·lada</p>
+                <p class="text-xs text-red-400 shrink-0">{{ m.bookingsUi.cancelled }}</p>
               </div>
             </div>
           </Transition>
@@ -188,14 +188,14 @@
             <div class="w-12 h-12 bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-            <h3 class="text-lg font-bold text-white text-center mb-1">Cancel·lar reserva?</h3>
-            <p class="text-sm text-gray-400 text-center mb-6">Aquesta acció no es pot desfer.</p>
+            <h3 class="text-lg font-bold text-white text-center mb-1">{{ m.bookingsUi.confirmCancelTitle }}</h3>
+            <p class="text-sm text-gray-400 text-center mb-6">{{ m.bookingsUi.confirmCancelText }}</p>
             <div class="flex gap-3">
               <button @click="showCancelModal = false" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-xl transition-colors">
-                Enrere
+                {{ m.bookingsUi.back }}
               </button>
               <button @click="confirmCancelBooking" :disabled="bookingStore.loading" class="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors">
-                {{ bookingStore.loading ? '...' : 'Sí, cancel·la' }}
+                {{ bookingStore.loading ? '...' : m.bookingsUi.yesCancel }}
               </button>
             </div>
           </div>
@@ -214,7 +214,7 @@
             <!-- Header -->
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-700 shrink-0">
               <div>
-                <h3 class="font-bold text-white">Reserva #{{ selectedBooking.id }}</h3>
+                <h3 class="font-bold text-white">{{ m.bookingsUi.bookingNumber }} #{{ selectedBooking.id }}</h3>
                 <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="{
                   'bg-yellow-900/40 text-yellow-300': selectedBooking.status === 'pending',
                   'bg-blue-900/40 text-blue-300': selectedBooking.status === 'active',
@@ -244,23 +244,23 @@
               <!-- Dates -->
               <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-800 rounded-xl p-3">
-                  <p class="text-xs text-gray-400 mb-1">Inici programat</p>
+                  <p class="text-xs text-gray-400 mb-1">{{ m.bookingsUi.scheduledStart }}</p>
                   <p class="text-sm font-semibold text-white">{{ formatDate(selectedBooking.scheduled_start) }}</p>
                 </div>
                 <div class="bg-gray-800 rounded-xl p-3">
-                  <p class="text-xs text-gray-400 mb-1">Fi programat</p>
+                  <p class="text-xs text-gray-400 mb-1">{{ m.bookingsUi.scheduledEnd }}</p>
                   <p class="text-sm font-semibold text-white">{{ formatDate(selectedBooking.scheduled_end) }}</p>
                 </div>
                 <div v-if="selectedBooking.activation_deadline" class="bg-gray-800 rounded-xl p-3">
-                  <p class="text-xs text-gray-400 mb-1">Límit activació</p>
+                  <p class="text-xs text-gray-400 mb-1">{{ m.bookingsUi.activationLimit }}</p>
                   <p class="text-sm font-semibold text-white">{{ formatDate(selectedBooking.activation_deadline) }}</p>
                 </div>
                 <div v-if="selectedBooking.trip?.engine_started_at" class="bg-gray-800 rounded-xl p-3">
-                  <p class="text-xs text-gray-400 mb-1">Inici real</p>
+                  <p class="text-xs text-gray-400 mb-1">{{ m.bookingsUi.realStart }}</p>
                   <p class="text-sm font-semibold text-white">{{ formatDate(selectedBooking.trip.engine_started_at) }}</p>
                 </div>
                 <div v-if="selectedBooking.cancelled_at" class="col-span-2 bg-red-900/20 rounded-xl p-3">
-                  <p class="text-xs text-red-400 mb-1">Cancel·lada el</p>
+                  <p class="text-xs text-red-400 mb-1">{{ m.bookingsUi.cancelledOn }}</p>
                   <p class="text-sm font-semibold text-red-300">{{ formatDate(selectedBooking.cancelled_at) }}</p>
                 </div>
               </div>
@@ -269,9 +269,9 @@
               <div class="bg-indigo-900/20 rounded-2xl p-4 flex items-center justify-between">
                 <div>
                   <p class="text-xs text-indigo-400 mb-0.5">{{ getBookingPriceLabel(selectedBooking) }}</p>
-                  <p v-if="selectedBooking.trip?.minutes_driven" class="text-xs text-indigo-400">{{ selectedBooking.trip.minutes_driven }} min conduïts</p>
+                  <p v-if="selectedBooking.trip?.minutes_driven" class="text-xs text-indigo-400">{{ selectedBooking.trip.minutes_driven }} {{ m.bookingsUi.minutesDriven }}</p>
                 </div>
-                <span v-if="getBookingPrice(selectedBooking) === 'Pendent'" class="text-sm font-semibold text-yellow-500">Es calcularà al finalitzar</span>
+                <span v-if="getBookingPrice(selectedBooking) === m.bookingsUi.pendingPrice" class="text-sm font-semibold text-yellow-500">{{ m.bookingsUi.pendingPriceMsg }}</span>
                 <span v-else class="text-2xl font-bold text-indigo-400">{{ getBookingPrice(selectedBooking) }}€</span>
               </div>
             </div>
@@ -279,7 +279,7 @@
             <!-- Footer -->
             <div v-if="selectedBooking.status === 'pending'" class="shrink-0 px-5 pb-5 pt-3 border-t border-gray-700">
               <button @click="initCancelBooking(selectedBooking.id)" class="w-full bg-red-900/20 hover:bg-red-900/40 text-red-400 font-semibold py-3 rounded-xl transition-colors">
-                Cancel·lar aquesta reserva
+                {{ m.bookingsUi.cancelThisBooking }}
               </button>
             </div>
           </div>
@@ -293,8 +293,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useBookingStore } from '@/stores/bookingStore'
 import { toast } from 'vue3-toastify'
+import { useI18n } from '@/i18n'
 
 const bookingStore = useBookingStore()
+const { m, locale } = useI18n()
 
 const showCancelModal = ref(false)
 const showDetailsModal = ref(false)
@@ -324,7 +326,7 @@ onMounted(async () => {
   try {
     await bookingStore.fetchBookings()
   } catch {
-    toast.error('Error carregant les reserves. Refresca la pàgina.')
+    toast.error(m.value.bookingsUi.fetchError)
     return
   }
   countdownInterval.value = window.setInterval(async () => {
@@ -334,7 +336,7 @@ onMounted(async () => {
         const deadline = new Date(booking.activation_deadline)
         if (now >= deadline && !expiredBookings.value.has(booking.id)) {
           expiredBookings.value.add(booking.id)
-          toast.warning(`La reserva de ${booking.vehicle?.license_plate || 'vehicle'} ha expirat`)
+          toast.warning(m.value.bookingsUi.expiredBookingToast.replace('{vehicle}', booking.vehicle?.license_plate || 'vehicle'))
           try { await bookingStore.fetchBookings() } catch {}
         }
       }
@@ -356,12 +358,12 @@ async function confirmCancelBooking() {
   if (!bookingIdToCancel.value) return
   try {
     await bookingStore.cancelBooking(bookingIdToCancel.value)
-    toast.success('Reserva cancel·lada')
+    toast.success(m.value.bookingsUi.cancelledToast)
     await bookingStore.fetchBookings()
     showCancelModal.value = false
     bookingIdToCancel.value = null
   } catch (error: any) {
-    toast.error(error.response?.data?.message || 'Error cancel·lant la reserva')
+    toast.error(error.response?.data?.message || m.value.bookingsUi.cancelError)
   }
 }
 
@@ -375,33 +377,44 @@ function closeDetailsModal() {
   selectedBooking.value = null
 }
 
+function getLocaleCode() {
+  if (locale.value === 'es') return 'es-ES'
+  if (locale.value === 'en') return 'en-GB'
+  return 'ca-ES'
+}
+
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleString('ca-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(dateString).toLocaleString(getLocaleCode(), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function formatDateCompact(dateString: string) {
   const d = new Date(dateString)
   const today = new Date()
   const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1)
-  const time = d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' })
-  if (d.toDateString() === today.toDateString()) return `Avui ${time}`
-  if (d.toDateString() === tomorrow.toDateString()) return `Demà ${time}`
-  return d.toLocaleDateString('ca-ES', { day: '2-digit', month: '2-digit' }) + ' ' + time
+  const time = d.toLocaleTimeString(getLocaleCode(), { hour: '2-digit', minute: '2-digit' })
+  if (d.toDateString() === today.toDateString()) return `${m.value.bookingsUi.today} ${time}`
+  if (d.toDateString() === tomorrow.toDateString()) return `${m.value.bookingsUi.tomorrow} ${time}`
+  return d.toLocaleDateString(getLocaleCode(), { day: '2-digit', month: '2-digit' }) + ' ' + time
 }
 
 function formatTimeOnly(dateString: string) {
-  return new Date(dateString).toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' })
+  return new Date(dateString).toLocaleTimeString(getLocaleCode(), { hour: '2-digit', minute: '2-digit' })
 }
 
 function timeUntilStart(booking: any): string {
   const diffMs = new Date(booking.scheduled_start).getTime() - Date.now()
-  if (diffMs <= 0) return "Hora d'inici passada — activa el vehicle!"
+  if (diffMs <= 0) return m.value.bookingsUi.startsInPast
   const diffMin = Math.floor(diffMs / 60000)
-  if (diffMin < 60) return `Comença en ${diffMin} min`
+  if (diffMin < 60) return m.value.bookingsUi.startsInMinutes.replace('{min}', String(diffMin))
   const h = Math.floor(diffMin / 60)
-  const m = diffMin % 60
-  if (h < 24) return `Comença en ${h}h${m > 0 ? ` ${m}min` : ''}`
-  return `Comença en ${Math.floor(h / 24)} dia${Math.floor(h / 24) > 1 ? 's' : ''}`
+  const minRemainder = diffMin % 60
+  if (h < 24) return m.value.bookingsUi.startsInHours
+    .replace('{hours}', String(h))
+    .replace('{minutes}', minRemainder > 0 ? ` ${minRemainder}min` : '')
+  const days = Math.floor(h / 24)
+  return m.value.bookingsUi.startsInDays
+    .replace('{days}', String(days))
+    .replace('{plural}', days > 1 ? 's' : '')
 }
 
 function isDeadlineNear(booking: any): boolean {
@@ -411,7 +424,13 @@ function isDeadlineNear(booking: any): boolean {
 }
 
 function getStatusLabel(status: string) {
-  const labels: Record<string, string> = { pending: 'Pendent', active: 'Activa', completed: 'Completada', cancelled: 'Cancel·lada', confirmed: 'Confirmada' }
+  const labels: Record<string, string> = {
+    pending: m.value.bookingsUi.pending,
+    active: m.value.bookingsUi.active,
+    completed: m.value.bookingsUi.completedStatus,
+    cancelled: m.value.bookingsUi.cancelledStatus,
+    confirmed: m.value.bookingsUi.confirmed,
+  }
   return labels[status] ?? status
 }
 
@@ -419,14 +438,14 @@ function getBookingPrice(booking: any): string {
   if (booking.trip?.total_amount != null) return booking.trip.total_amount.toFixed(2)
   if (booking.total_price != null) return booking.total_price.toFixed(2)
   if (booking.cancellation_fee != null) return booking.cancellation_fee.toFixed(2)
-  if (['pending', 'active'].includes(booking.status)) return 'Pendent'
+  if (['pending', 'active'].includes(booking.status)) return m.value.bookingsUi.pendingPrice
   return '0.00'
 }
 
 function getBookingPriceLabel(booking: any): string {
-  if (['pending', 'active'].includes(booking.status)) return 'Preu estimat'
-  if (booking.status === 'cancelled' && booking.cancellation_fee != null) return 'Taxa cancel·lació'
-  return 'Preu total'
+  if (['pending', 'active'].includes(booking.status)) return m.value.bookingsUi.estimatedPrice
+  if (booking.status === 'cancelled' && booking.cancellation_fee != null) return m.value.bookingsUi.cancellationFee
+  return m.value.bookingsUi.totalPrice
 }
 </script>
 

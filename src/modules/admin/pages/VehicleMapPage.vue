@@ -1,8 +1,8 @@
 <template>
   <div class="h-full">
     <div class="mb-4">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Vehicle Map</h1>
-      <p class="text-gray-600 dark:text-gray-400">Real-time fleet location</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ m.adminMapUi.title }}</h1>
+      <p class="text-gray-600 dark:text-gray-400">{{ m.adminMapUi.subtitle }}</p>
     </div>
     
     <!-- Map -->
@@ -10,13 +10,13 @@
     <div ref="mapContainer" class="w-full h-[500px] lg:ml-0 lg:pl-0 rounded-lg shadow-lg z-0" style="height: 60vh;"></div>
     <div class="map-legend absolute top-6 right-6 bg-white/90 dark:bg-gray-900/90 text-sm p-2 rounded shadow">
       <div class="flex items-center justify-between mb-1">
-        <div class="font-semibold">Legend</div>
-        <button @click="legendOpen = !legendOpen" class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">{{ legendOpen ? 'Hide' : 'Show' }}</button>
+        <div class="font-semibold">{{ m.adminMapUi.legend }}</div>
+        <button @click="legendOpen = !legendOpen" class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">{{ legendOpen ? m.adminMapUi.hide : m.adminMapUi.show }}</button>
       </div>
       <div v-if="legendOpen">
-        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid #ffffff"></span><span>Available</span></div>
-        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;border:2px solid #ffffff"></span><span>Occupied</span></div>
-        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#ffffff;display:inline-block;border:3px solid #ef4444"></span><span>Running</span></div>
+        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid #ffffff"></span><span>{{ m.adminMapUi.available }}</span></div>
+        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;border:2px solid #ffffff"></span><span>{{ m.adminMapUi.occupied }}</span></div>
+        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#ffffff;display:inline-block;border:3px solid #ef4444"></span><span>{{ m.adminMapUi.running }}</span></div>
       </div>
     </div>
     
@@ -31,13 +31,13 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ vehicle.brand }} {{ vehicle.model }}</p>
               </div>
               <div class="flex flex-col items-end gap-1">
-                <span class="text-xs px-2 py-0.5 rounded-full" :class="vehicle.postgres_active ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ vehicle.postgres_active ? 'Occupied' : 'Available' }}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full" :class="vehicle.mongo_active ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'">{{ vehicle.mongo_active ? 'Running' : 'Stopped' }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" :class="vehicle.postgres_active ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">{{ vehicle.postgres_active ? m.adminMapUi.occupied : m.adminMapUi.available }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" :class="vehicle.mongo_active ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'">{{ vehicle.mongo_active ? m.adminMapUi.running : m.adminMapUi.stopped }}</span>
               </div>
             </div>
 
             <div class="mt-2 text-xs text-gray-500 flex items-center justify-between gap-2">
-              <div class="truncate">Lat: {{ vehicle.latitude ?? '-' }}, Lng: {{ vehicle.longitude ?? '-' }}</div>
+              <div class="truncate">{{ m.adminMapUi.lat }}: {{ vehicle.latitude ?? '-' }}, {{ m.adminMapUi.lng }}: {{ vehicle.longitude ?? '-' }}</div>
               <div class="text-right text-xs text-gray-400">ID: {{ vehicle.id }}</div>
             </div>
           </div>
@@ -57,7 +57,9 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useMap } from '@/modules/map/composables/useMap'
+import { useI18n } from '@/i18n'
 
+const { m } = useI18n()
 const { mapContainer, vehicles, markers, map, initMap, fetchVehicles, centerOnVehicle, destroyMap, setSearchQuery, setShowOperativeOnly, setUserLocation, setRadiusMeters, rawVehicles } = useMap()
 
 const query = ref('')
@@ -73,7 +75,7 @@ const onRadiusChange = () => setRadiusMeters(radiusKm.value ? radiusKm.value * 1
 const exportCSV = () => {
   const rows = (vehicles.value || []).map((v: any) => ({ id: v.id, plate: v.plate, brand: v.brand, model: v.model, lat: v.latitude, lng: v.longitude, postgres_active: v.postgres_active, mongo_active: v.mongo_active }))
   if (rows.length === 0) {
-    alert('No vehicles to export')
+    alert(m.value.adminMapUi.noVehiclesToExport)
     return
   }
   const first = rows[0] as any
@@ -127,19 +129,14 @@ onUnmounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
 .vehicle-marker {
   background: transparent !important;
   border: none !important;
 }
-/* Ensure Leaflet map and all its panes stay below the app sidebar */
-.leaflet-container,
-.leaflet-control-container,
-.leaflet-map-pane,
-.leaflet-pane,
-.leaflet-overlay-pane,
-.leaflet-tile-pane,
-.leaflet-shadow-pane {
+/* Keep only the container below overlays.
+   Do not override Leaflet inner panes, or markers lose map anchoring. */
+.leaflet-container {
   z-index: 0 !important;
 }
 /* Legend styling */

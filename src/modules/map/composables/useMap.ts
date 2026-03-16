@@ -36,6 +36,20 @@ const showOperativeOnly = ref(false)
 const userLocation = ref<{ lat: number; lng: number } | null>(null)
 const radiusMeters = ref<number | null>(null)
 
+const normalizeVehicleStatus = (vehicle: any): 'available' | 'occupied' | 'running' => {
+  // Prioritat d'estat real:
+  // 1) mongo_active -> running (vehicle en marxa)
+  // 2) postgres_active -> occupied (vehicle reservat/ocupat)
+  // 3) status del backend si és vàlid
+  // 4) available per defecte
+  if (vehicle?.mongo_active === true) return 'running'
+  if (vehicle?.postgres_active === true) return 'occupied'
+  if (['available', 'occupied', 'running'].includes(vehicle?.status)) {
+    return vehicle.status
+  }
+  return 'available'
+}
+
 const createVehicleIcon = (status: 'available' | 'occupied' | 'running', isSelected: boolean = false) => {
   // Lògica correcta dels colors segons status:
   // - available: fons verd, borde blanc
@@ -159,8 +173,10 @@ const fetchVehicles = async (endpoint = '/vehicles') => {
       latitude: v.latitude,
       longitude: v.longitude,
       tenant_id: v.tenant_id,
-      status: v.status || 'available', // available, occupied, running
+      status: normalizeVehicleStatus(v),
       active: v.active,
+      postgres_active: v.postgres_active,
+      mongo_active: v.mongo_active,
       created_at: v.created_at,
       updated_at: v.updated_at,
     }))
@@ -304,6 +320,21 @@ const setOnVehicleClick = (callback: (vehicle: Vehicle) => void) => {
   onVehicleClickCallback = callback
 }
 
+const startPolling = (endpoint = '/vehicles', intervalMs = 8000) => {
+  pollEndpoint = endpoint
+  if (pollInterval) clearInterval(pollInterval)
+  pollInterval = setInterval(() => {
+    fetchVehicles(pollEndpoint).catch(() => {})
+  }, intervalMs)
+}
+
+const stopPolling = () => {
+  if (pollInterval) {
+    clearInterval(pollInterval)
+    pollInterval = null
+  }
+}
+
 const getEffectiveStatus = (vehicle: Vehicle): 'available' | 'occupied' | 'running' => {
   if (bookedVehicleIds.value.has(vehicle.id)) return 'occupied'
   return vehicle.status
@@ -363,6 +394,8 @@ export function useMap() {
     centerOnVehicle,
     destroyMap,
     setOnVehicleClick,
+    startPolling,
+    stopPolling,
     setSelectedVehicle,
     markVehicleAsBooked,
     bookedVehicleIds,
