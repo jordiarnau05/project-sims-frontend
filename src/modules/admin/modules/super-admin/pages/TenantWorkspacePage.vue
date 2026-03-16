@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-8 px-4 sm:px-6 lg:px-8">
     <PageHeading
+<<<<<<< HEAD
       :title="m.superAdminUi.tenantWorkspaceTitle"
       :description="m.superAdminUi.tenantWorkspaceDescription"
     />
@@ -10,6 +11,17 @@
     </div>
 
     <div v-if="loading" class="text-center text-gray-500 dark:text-gray-400">{{ m.superAdminUi.loadingTenants }}</div>
+=======
+      title="Tenant Workspace"
+      description="Switch context and manage each tenant fleet, users, roles and bookings"
+    />
+
+    <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-800 dark:border-indigo-800/50 dark:bg-indigo-900/20 dark:text-indigo-300">
+      Current tenant context: <strong>{{ activeTenant || 'none' }}</strong>
+    </div>
+
+    <div v-if="loading" class="text-center text-gray-500 dark:text-gray-400">Loading tenants...</div>
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
     <div v-else-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">{{ error }}</div>
 
     <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -23,17 +35,28 @@
             <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ tenant.name }}</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">{{ tenant.slug }}</p>
           </div>
+<<<<<<< HEAD
           <StatusBadge :active="tenant.active" :active-text="m.commonUi.active" :inactive-text="m.commonUi.inactive" />
         </div>
 
         <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ tenant.email || m.superAdminUi.noEmailConfigured }}</p>
+=======
+          <StatusBadge :active="tenant.active" active-text="Active" inactive-text="Inactive" />
+        </div>
+
+        <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ tenant.email || 'No email configured' }}</p>
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
 
         <div class="mt-4 flex flex-wrap gap-2">
           <button
             class="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500"
             @click="activateTenant(tenant.slug)"
           >
+<<<<<<< HEAD
             {{ m.superAdminUi.activateContext }}
+=======
+            Activate context
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
           </button>
 
           <router-link
@@ -41,7 +64,11 @@
             :to="'/admin/users'"
             @click="activateTenant(tenant.slug)"
           >
+<<<<<<< HEAD
             {{ m.superAdminUi.users }}
+=======
+            Users
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
           </router-link>
 
           <router-link
@@ -49,7 +76,11 @@
             :to="'/admin/vehicles'"
             @click="activateTenant(tenant.slug)"
           >
+<<<<<<< HEAD
             {{ m.superAdminUi.fleet }}
+=======
+            Fleet
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
           </router-link>
 
           <router-link
@@ -57,7 +88,11 @@
             :to="'/admin/roles'"
             @click="activateTenant(tenant.slug)"
           >
+<<<<<<< HEAD
             {{ m.adminNav.roles }}
+=======
+            Roles
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
           </router-link>
 
           <router-link
@@ -65,7 +100,11 @@
             :to="'/admin/bookings'"
             @click="activateTenant(tenant.slug)"
           >
+<<<<<<< HEAD
             {{ m.adminNav.bookings }}
+=======
+            Bookings
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
           </router-link>
         </div>
       </article>
@@ -78,9 +117,12 @@ import { computed, onMounted } from 'vue'
 import PageHeading from '@/modules/admin/components/PageHeading.vue'
 import StatusBadge from '@/modules/admin/components/StatusBadge.vue'
 import { useSuperAdmin } from '../composables/useSuperAdmin'
+<<<<<<< HEAD
 import { useI18n } from '@/i18n'
 
 const { m } = useI18n()
+=======
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
 
 const {
   loading,

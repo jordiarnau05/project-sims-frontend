@@ -10,11 +10,15 @@ import showToast from '@/modules/common/composables/useToast'
 
 // Normalize API base URL and ensure it points to the backend API prefix (/api)
 const _rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+<<<<<<< HEAD
 const _windowHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
 const _useDomainMode = _windowHost !== 'localhost' && _windowHost !== '127.0.0.1'
 const _apiBase = _useDomainMode
   ? '/api'
   : (_rawApiUrl as string).replace(/\/$/, '') + '/api'
+=======
+const _apiBase = (_rawApiUrl as string).replace(/\/$/, '') + '/api'
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
 
 const apiClient = axios.create({
   baseURL: _apiBase,
@@ -23,6 +27,7 @@ const apiClient = axios.create({
   }
 })
 
+<<<<<<< HEAD
 const getTenantFromHost = (): string | undefined => {
   if (typeof window === 'undefined') return undefined
   const host = window.location.hostname.toLowerCase()
@@ -50,6 +55,8 @@ const getTenantFromHost = (): string | undefined => {
   return undefined
 }
 
+=======
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
 // Interceptor to add token and tenant to all requests
 apiClient.interceptors.request.use(
   (config) => {
@@ -63,11 +70,16 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${decodeURIComponent(token)}`
     }
 
+<<<<<<< HEAD
     // Get active tenant slug and add X-Tenant header.
     // Priority:
     // 1) Explicit per-request X-Tenant (super-admin cross-tenant views)
     // 2) Tenant inferred from host subdomain (preferred in multi-tenant domains)
     // 3) Cookie/localStorage fallback
+=======
+    // Get active tenant slug from cookie (or localStorage fallback) and add X-Tenant header.
+    // Respect explicit per-request X-Tenant (used by Super Admin cross-tenant views).
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
     let tenant = document.cookie
       .split('; ')
       .find((row) => row.startsWith('tenant='))
@@ -83,11 +95,16 @@ apiClient.interceptors.request.use(
       }
     }
 
+<<<<<<< HEAD
     const tenantFromHost = getTenantFromHost()
     const resolvedTenant = tenantFromHost || tenant
 
     if (resolvedTenant && !config.headers?.['X-Tenant']) {
       config.headers['X-Tenant'] = decodeURIComponent(resolvedTenant as string)
+=======
+    if (tenant && !config.headers?.['X-Tenant']) {
+      config.headers['X-Tenant'] = decodeURIComponent(tenant as string)
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
     }
 
     return config

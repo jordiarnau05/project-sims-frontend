@@ -133,6 +133,7 @@ const messages = {
       profileUpdated: 'Perfil actualitzat correctament', profileError: 'Error actualitzant el perfil',
       passwordUpdated: 'Contrasenya actualitzada correctament', passwordError: 'Error actualitzant la contrasenya',
     },
+<<<<<<< HEAD
     commonUi: {
       showing: 'Mostrant',
       to: 'a',
@@ -271,6 +272,8 @@ const messages = {
       description: 'No hem pogut trobar la pàgina que busques.',
       backHome: 'Tornar a inici',
     },
+=======
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
     adminNav: { dashboard: 'Tauler', map: 'Mapa', users: 'Usuaris', roles: 'Rols', bookings: 'Reserves', vehicles: 'Vehicles', tenants: 'Empreses', superAdmin: 'Vista global', tenantWorkspace: 'Espai tenant', tickets: 'Tiquets' },
     admin: { notAuthorizedTitle: 'No autoritzat', notAuthorizedMsg: "El teu compte no té permís per accedir a l'àrea d'administració." },
   },
@@ -404,6 +407,7 @@ const messages = {
       profileUpdated: 'Perfil actualizado correctamente', profileError: 'Error al actualizar el perfil',
       passwordUpdated: 'Contraseña actualizada correctamente', passwordError: 'Error al actualizar la contraseña',
     },
+<<<<<<< HEAD
     commonUi: {
       showing: 'Mostrando',
       to: 'a',
@@ -542,6 +546,8 @@ const messages = {
       description: 'No hemos podido encontrar la página que buscas.',
       backHome: 'Volver al inicio',
     },
+=======
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
     adminNav: { dashboard: 'Panel', map: 'Mapa', users: 'Usuarios', roles: 'Roles', bookings: 'Reservas', vehicles: 'Vehículos', tenants: 'Empresas', superAdmin: 'Vista global', tenantWorkspace: 'Espacio tenant', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'No autorizado', notAuthorizedMsg: 'Tu cuenta no tiene permiso para acceder al área de administración.' },
   },
@@ -675,6 +681,7 @@ const messages = {
       profileUpdated: 'Profile updated successfully', profileError: 'Error updating profile',
       passwordUpdated: 'Password updated successfully', passwordError: 'Error updating password',
     },
+<<<<<<< HEAD
     commonUi: {
       showing: 'Showing',
       to: 'to',
@@ -813,6 +820,8 @@ const messages = {
       description: 'Sorry, we couldn’t find the page you’re looking for.',
       backHome: 'Go back home',
     },
+=======
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
     adminNav: { dashboard: 'Dashboard', map: 'Map', users: 'Users', roles: 'Roles', bookings: 'Bookings', vehicles: 'Vehicles', tenants: 'Tenants', superAdmin: 'Global view', tenantWorkspace: 'Tenant workspace', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'Not authorized', notAuthorizedMsg: 'Your account does not have permission to access the admin area.' },
   },

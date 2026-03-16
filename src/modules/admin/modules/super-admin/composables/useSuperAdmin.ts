@@ -40,10 +40,17 @@ export function useSuperAdmin() {
     error.value = null
 
     try {
+<<<<<<< HEAD
       await loadTenants()
       const [vehiclesByTenant, usersByTenant] = await Promise.all([
         loadVehiclesForSuperAdmin(),
         loadUsersForSuperAdmin(),
+=======
+      const tenantList = await loadTenants()
+      const [vehiclesByTenant, usersByTenant] = await Promise.all([
+        loadVehiclesForTenants(tenantList),
+        loadUsersForTenants(tenantList),
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
       ])
 
       vehicles.value = vehiclesByTenant
@@ -71,13 +78,17 @@ export function useSuperAdmin() {
       email: row.email ?? null,
       active: Boolean(row.active),
     }))
+<<<<<<< HEAD
     // The central tenant is the SuperAdmin workspace, not an operational tenant.
     .filter((tenant) => tenant.id !== 'central')
+=======
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
 
     tenants.value = mapped
     return mapped
   }
 
+<<<<<<< HEAD
   const loadVehiclesForSuperAdmin = async (): Promise<SuperAdminVehicle[]> => {
     const response = await api.get('/vehicles', {
       params: { per_page: 300 },
@@ -109,6 +120,62 @@ export function useSuperAdmin() {
       active: Boolean(row.active),
       role_name: row.roles?.[0]?.name || '-',
     }))
+=======
+  const loadVehiclesForTenants = async (tenantList: SuperAdminTenant[]): Promise<SuperAdminVehicle[]> => {
+    const results = await Promise.all(
+      tenantList.map(async (tenant) => {
+        try {
+          const response = await api.get('/vehicles', {
+            params: { per_page: 300 },
+            headers: { 'X-Tenant': tenant.slug },
+          })
+
+          const rows = normalizeCollection(response.data)
+          return rows.map((row: AnyRecord) => ({
+            id: Number(row.id),
+            tenant_id: row.tenant_id ? String(row.tenant_id) : tenant.slug,
+            tenant_name: tenant.name,
+            license_plate: String(row.license_plate || '-'),
+            brand: row.brand ?? null,
+            model: row.model ?? null,
+            active: Boolean(row.active),
+          }))
+        } catch {
+          return []
+        }
+      })
+    )
+
+    return results.flat()
+  }
+
+  const loadUsersForTenants = async (tenantList: SuperAdminTenant[]): Promise<SuperAdminUser[]> => {
+    const results = await Promise.all(
+      tenantList.map(async (tenant) => {
+        try {
+          const response = await api.get('/users', {
+            headers: { 'X-Tenant': tenant.slug },
+          })
+
+          const rows = normalizeCollection(response.data)
+          return rows.map((row: AnyRecord) => ({
+            id: Number(row.id),
+            tenant_id: row.tenant_id ? String(row.tenant_id) : tenant.slug,
+            tenant_name: tenant.name,
+            name: String(row.name || '-'),
+            username: String(row.username || '-'),
+            email: String(row.email || '-'),
+            active: Boolean(row.active),
+            role_name: row.roles?.[0]?.name || '-',
+          }))
+        } catch {
+          return []
+        }
+      })
+    )
+
+    return results.flat()
+>>>>>>> 765405c (feat: add super admin functionality and tenant management)
   }
 
   return {
