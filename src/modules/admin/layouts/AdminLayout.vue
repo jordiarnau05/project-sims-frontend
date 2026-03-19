@@ -218,17 +218,20 @@ const navigationItems = [
   { key: 'tickets', href: '/admin/tickets', icon: TicketIcon },
 ]
 
-const navigation = computed(() =>
-  navigationItems.map(item => ({
-    ...item,
-    name: m.value.adminNav[item.key as keyof typeof m.value.adminNav],
-    current: route.path === item.href || (item.href !== '/admin' && route.path.startsWith(item.href))
-  }))
-)
-
 const sidebarOpen = ref(false)
 const { user, isLoading, logout } = useAuth()
-const isAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase() === 'admin')))
+const isAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase().includes('admin'))))
+const isSuperAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase().includes('superadmin'))))
+
+const navigation = computed(() =>
+  navigationItems
+    .filter((item) => !item.superAdminOnly || isSuperAdmin.value)
+    .map(item => ({
+      ...item,
+      name: m.value.adminNav[item.key as keyof typeof m.value.adminNav],
+      current: route.path === item.href || (item.href !== '/admin' && route.path.startsWith(item.href))
+    }))
+)
 
 const adminDisplayName = computed(() => user.value?.name || 'Admin')
 const adminProfilePath = computed(() => user.value?.id ? `/admin/users/${user.value.id}` : '/admin')
