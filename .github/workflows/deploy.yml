@@ -24,12 +24,17 @@ jobs:
           npm run build
           ls -la dist
 
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.DEPLOY_SSH_KEY_B64 }}" | base64 -d > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+
       - name: Prepare remote folder
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key_path: /tmp/deploy_key
           script: |
             mkdir -p /var/www/sims-frontend/dist
             rm -rf /var/www/sims-frontend/dist/*
@@ -39,7 +44,7 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key_path: /tmp/deploy_key
           source: "dist/**"
           target: "/var/www/sims-frontend/dist"
           strip_components: 1
@@ -49,5 +54,5 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key_path: /tmp/deploy_key
           script: sudo systemctl reload nginx
