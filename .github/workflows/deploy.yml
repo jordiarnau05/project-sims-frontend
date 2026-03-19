@@ -1,4 +1,4 @@
-name: Deploy Frontend to DigitalOcean
+name: Deploy Frontend
 
 on:
   push:
@@ -14,14 +14,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 18
           cache: 'npm'
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: project-sims-frontend/package-lock.json
 
       - name: Build Project
+        working-directory: project-sims-frontend
         run: |
-          npm ci
-          VITE_API_URL=${{ secrets.VITE_API_URL }} npm run build
+          npm install
+          npm run build
 
       - name: Prepare remote folder
         uses: appleboy/ssh-action@v1.0.3
@@ -39,9 +40,9 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "dist/**"
+          source: "project-sims-frontend/dist/**"
           target: "/var/www/sims-frontend/dist"
-          strip_components: 1
+          strip_components: 2
 
       - name: Reload Nginx
         uses: appleboy/ssh-action@v1.0.3
