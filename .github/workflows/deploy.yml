@@ -14,15 +14,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
-          # Ajusta esta ruta si tu package-lock no está en la raíz del repo
-          cache-dependency-path: project-sims-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Build Project
-        working-directory: project-sims-frontend
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Prepare remote folder
@@ -41,7 +39,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "project-sims-frontend/dist/**"
+          source: "dist/**"
           target: "/var/www/sims-frontend/dist"
           strip_components: 2
 
