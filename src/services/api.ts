@@ -10,7 +10,11 @@ import showToast from '@/modules/common/composables/useToast'
 
 // Normalize API base URL and ensure it points to the backend API prefix (/api)
 const _rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
-const _apiBase = (_rawApiUrl as string).replace(/\/$/, '') + '/api'
+const _windowHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+const _useDomainMode = _windowHost !== 'localhost' && _windowHost !== '127.0.0.1'
+const _apiBase = _useDomainMode
+  ? '/api'
+  : (_rawApiUrl as string).replace(/\/$/, '') + '/api'
 
 const apiClient = axios.create({
   baseURL: _apiBase,

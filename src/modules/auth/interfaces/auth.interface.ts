@@ -7,6 +7,12 @@ export interface LoginResponse {
   token: string
 }
 
+export interface CentralLoginResponse {
+  exchange_token: string
+  tenant_id: string
+  tenant_host: string
+}
+
 export interface RegisterRequest {
   name: string
   username: string

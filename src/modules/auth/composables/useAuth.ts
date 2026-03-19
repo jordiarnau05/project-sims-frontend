@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/services/api'
-import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User, UserResponse } from '../interfaces/auth.interface'
+import type { CentralLoginResponse, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User, UserResponse } from '../interfaces/auth.interface'
 import showToast from '@/modules/common/composables/useToast'
 
 const TOKEN_COOKIE_NAME  = 'token'
@@ -40,6 +40,19 @@ const isAuthenticated = computed(() => !!user.value)
 export function useAuth() {
   const router = useRouter()
 
+  const isCentralHost = (): boolean => {
+    if (typeof window === 'undefined') return false
+    const host = window.location.hostname.toLowerCase()
+    return host === 'localhost' || host === '127.0.0.1' || host === 'app.localhost'
+  }
+
+  const redirectToTenantDomain = (tenantHost: string, exchangeToken: string, tenantId: string): void => {
+    const protocol = window.location.protocol
+    const portSuffix = window.location.port ? `:${window.location.port}` : ''
+    const tenantUrl = `${protocol}//${tenantHost}${portSuffix}/auth/callback?exchange_token=${encodeURIComponent(exchangeToken)}&tenant=${encodeURIComponent(tenantId)}`
+    window.location.assign(tenantUrl)
+  }
+
   const getToken = (): string | null => {
     return getCookie(TOKEN_COOKIE_NAME)
   }
@@ -68,8 +81,30 @@ export function useAuth() {
     isLoading.value = true
     error.value = null
 
-    // Persist tenant slug before the request so axios sends X-Tenant from the start
-    setCookie(TENANT_COOKIE_NAME, tenantSlug.toLowerCase())
+    const normalizedTenant = tenantSlug.toLowerCase()
+
+    // Central domain login: authenticate once and redirect user to tenant subdomain.
+    if (isCentralHost()) {
+      try {
+        const response = await apiClient.post<CentralLoginResponse>('/central/login', {
+          organization: normalizedTenant,
+          email,
+          password,
+        })
+
+        redirectToTenantDomain(response.data.tenant_host, response.data.exchange_token, response.data.tenant_id)
+        return false
+      } catch (err: any) {
+        const msg = err.response?.data?.message || 'Error logging in'
+        error.value = msg
+        return false
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+    // Tenant-domain login flow (same-domain session)
+    setCookie(TENANT_COOKIE_NAME, normalizedTenant)
 
     try {
       const loginData: LoginRequest = { email, password }
@@ -98,6 +133,46 @@ export function useAuth() {
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Error logging in'
       error.value = msg
+      deleteCookie(TENANT_COOKIE_NAME)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const completeTenantRedirectLogin = async (exchangeToken: string, tenantSlug: string): Promise<boolean> => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      setCookie(TENANT_COOKIE_NAME, tenantSlug.toLowerCase())
+      localStorage.setItem('active_admin_tenant', tenantSlug.toLowerCase())
+
+      const response = await apiClient.post<LoginResponse>('/auth/exchange-token', {
+        exchange_token: exchangeToken,
+      })
+
+      const token = response.data.token
+      if (!token) {
+        error.value = 'No token received from exchange endpoint'
+        deleteCookie(TOKEN_COOKIE_NAME)
+        deleteCookie(TENANT_COOKIE_NAME)
+        return false
+      }
+
+      setCookie(TOKEN_COOKIE_NAME, token)
+      apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
+
+      const userFetched = await fetchUser()
+      if (userFetched && user.value?.tenant_id) {
+        setCookie(TENANT_COOKIE_NAME, user.value.tenant_id)
+      }
+
+      return userFetched
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Error completing login'
+      error.value = msg
+      deleteCookie(TOKEN_COOKIE_NAME)
       deleteCookie(TENANT_COOKIE_NAME)
       return false
     } finally {
@@ -147,6 +222,7 @@ export function useAuth() {
     isAuthenticated,
     getToken,
     fetchUser,
+    completeTenantRedirectLogin,
     login,
     register,
     logout

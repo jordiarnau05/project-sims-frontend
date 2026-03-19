@@ -47,6 +47,19 @@ npm install
 npm run dev
 ```
 
+### Tenant Domains in Local Dev
+
+This workspace supports one domain per tenant in development.
+
+- SIMS Corp: http://sims-corp.localhost:5173
+- EcoMove: http://ecomove.localhost:5173
+
+Notes:
+
+- The frontend proxies `/api` to backend and preserves host, so backend resolves tenancy by domain.
+- Domain-to-tenant mappings are stored in backend `domains` table.
+- `X-Tenant` header is still supported as fallback, but domain routing is preferred.
+
 ### Type-Check, Compile and Minify for Production
 
 ```sh

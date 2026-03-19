@@ -18,5 +18,11 @@ export const authRoutes: RouteRecordRaw[] = [
     name: 'Dashboard',
     component: () => import('../pages/DashboardPage.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/auth/callback',
+    name: 'AuthCallback',
+    component: () => import('../pages/AuthCallbackPage.vue'),
+    meta: { requiresAuth: false }
   }
 ]
