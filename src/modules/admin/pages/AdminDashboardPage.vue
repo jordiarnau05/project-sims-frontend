@@ -45,36 +45,6 @@
         </p>
       </RouterLink>
 
-      <!-- Tickets card (module disabled) -->
-      <div
-        v-for="item in disabledItems"
-        :key="item.name"
-        class="relative overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800/60 p-6 ring-1 ring-gray-200 dark:ring-white/10 opacity-80"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ item.name }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              {{ item.description }}
-            </p>
-          </div>
-          <div
-            class="flex h-12 w-12 items-center justify-center rounded-xl"
-            :class="item.bgClass"
-          >
-            <component
-              :is="item.icon"
-              class="h-6 w-6"
-              :class="item.iconClass"
-            />
-          </div>
-        </div>
-        <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
-          Ticket module disabled in the frontend.
-        </p>
-      </div>
     </div>
   </div>
 </template>
@@ -93,6 +63,7 @@ import { useUsers } from '@/modules/admin/modules/users/composables/useUsers'
 import { useVehicles } from '@/modules/admin/modules/vehicles/composables/useVehicles'
 import { useRoles } from '@/modules/admin/modules/roles/composables/useRoles'
 import { useBookings } from '@/modules/admin/bookings/composables/useBookings'
+import { useTickets } from '@/modules/tickets/composables/useTickets'
 
 const {
   users,
@@ -114,6 +85,7 @@ const {
   pagination: bookingsPagination,
   getBookings,
 } = useBookings()
+const { tickets, getTickets } = useTickets()
 
 const loadingStats = ref(false)
 
@@ -126,6 +98,7 @@ onMounted(async () => {
       getVehicles(1).catch((e) => console.error('Error loading vehicles stats', e)),
       getRoles(1).catch((e) => console.error('Error loading roles stats', e)),
       getBookings(1).catch((e) => console.error('Error loading bookings stats', e)),
+      getTickets().catch((e) => console.error('Error loading tickets stats', e)),
     ])
   } catch (e) {
     console.error('Error loading admin stats', e)
@@ -171,15 +144,14 @@ const items = computed(() => [
     iconClass: 'text-orange-400',
     count: vehiclesPagination.value.total || vehicles.value.length,
   },
-])
-
-const disabledItems = [
   {
     name: 'Tickets',
-    description: 'Ticket management (currently disabled).',
+    description: 'Manage user support tickets.',
+    to: '/admin/tickets',
     icon: TicketIcon,
     bgClass: 'bg-rose-500/20',
     iconClass: 'text-rose-400',
+    count: tickets.value.length,
   },
-]
+])
 </script>

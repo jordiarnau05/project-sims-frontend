@@ -97,15 +97,6 @@
               <span class="material-icons text-xl">edit</span>
               <span class="sr-only">Edit, {{ user.name }}</span>
             </button>
-            <button
-              v-if="isCurrentUserAdmin"
-              class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-              @click="openDeleteModal(user)"
-              title="Delete"
-            >
-              <span class="material-icons text-xl">delete</span>
-              <span class="sr-only">Delete, {{ user.name }}</span>
-            </button>
           </div>
         </AdminTd>
       </tr>
@@ -120,13 +111,6 @@
       @update:page="handlePageChange"
     />
 
-    <!-- Delete Modal -->
-    <UserDeleteModal
-      v-if="userToDelete"
-      :user="userToDelete"
-      @confirmed="handleDeleteConfirmed"
-      @cancel="userToDelete = null"
-    />
   </div>
 </template>
 
@@ -140,7 +124,6 @@ import AdminsTable from '@/modules/admin/components/AdminsTable.vue'
 import AdminTd from '@/modules/admin/components/AdminTd.vue'
 import AdminPagination from '@/modules/admin/components/AdminPagination.vue'
 import PageHeading from '@/modules/admin/components/PageHeading.vue'
-import UserDeleteModal from '../components/UserDeleteModal.vue'
 
 const router = useRouter()
 const { users, loading, error, pagination, getUsers, isCurrentUserAdmin } = useUsers()
@@ -159,8 +142,6 @@ const columns = [
 const filters = ref<UserFilters>({
   search: ''
 })
-
-const userToDelete = ref<User | null>(null)
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -193,12 +174,4 @@ const navigateToEdit = (user: User) => {
   router.push(`/admin/users/${user.id}/edit`)
 }
 
-const openDeleteModal = (user: User) => {
-  userToDelete.value = user
-}
-
-const handleDeleteConfirmed = () => {
-  userToDelete.value = null
-  loadUsers()
-}
 </script>

@@ -113,6 +113,7 @@
           Edit
         </router-link>
         <button
+          v-if="canDeleteViewedUser"
           @click="openDeleteModal"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
         >
@@ -126,7 +127,7 @@
 
     <!-- Delete Modal -->
     <UserDeleteModal
-      v-if="showDeleteModal"
+      v-if="showDeleteModal && canDeleteViewedUser"
       :user="user!"
       @confirmed="handleDeleteConfirmed"
       @cancel="showDeleteModal = false"
@@ -153,6 +154,22 @@ const error = ref<string | null>(null)
 const showDeleteModal = ref(false)
 
 const userId = computed(() => Number(route.params.id))
+const isViewedUserSuperAdmin = computed(() => {
+  if (!user.value) return false
+
+  const hasSuperAdminRole = user.value.roles?.some((role) => {
+    const normalizedName = role.name.trim().toLowerCase()
+    return normalizedName === 'super admin' || normalizedName === 'superadmin'
+  }) ?? false
+
+  const hasSuperAdminName = user.value.name.trim().toLowerCase() === 'super admin'
+
+  return hasSuperAdminRole || hasSuperAdminName
+})
+
+const canDeleteViewedUser = computed(() => {
+  return isCurrentUserAdmin.value && !isViewedUserSuperAdmin.value
+})
 
 onMounted(async () => {
   await loadUser()
@@ -181,6 +198,7 @@ const formatDate = (dateString: string) => {
 }
 
 const openDeleteModal = () => {
+  if (!canDeleteViewedUser.value) return
   showDeleteModal.value = true
 }
 

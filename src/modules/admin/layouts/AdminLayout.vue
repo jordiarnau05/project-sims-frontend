@@ -74,11 +74,43 @@
               </ul>
             </li>
             <li class="-mx-6 mt-auto">
-              <a href="#" class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5">
-                <img class="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-                <span class="sr-only">Your profile</span>
-                <span aria-hidden="true">Tom Cook</span>
-              </a>
+              <Menu as="div" class="relative px-2 py-2">
+                <MenuButton class="w-full flex items-center gap-x-3 rounded-md px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5">
+                  <span class="size-8 rounded-full outline -outline-offset-1 outline-black/5 dark:outline-white/10 bg-indigo-700 flex items-center justify-center text-xs font-bold text-white">
+                    {{ userInitials }}
+                  </span>
+                  <span class="truncate">{{ adminDisplayName }}</span>
+                  <ChevronUpDownIcon class="ml-auto size-4 text-gray-400" />
+                </MenuButton>
+                <transition
+                  enter-active-class="transition ease-out duration-200"
+                  enter-from-class="transform opacity-0 scale-95"
+                  enter-to-class="transform scale-100 opacity-100"
+                  leave-active-class="transition ease-in duration-75"
+                  leave-from-class="transform scale-100 opacity-100"
+                  leave-to-class="transform opacity-0 scale-95"
+                >
+                  <MenuItems class="absolute bottom-14 left-2 right-2 z-40 origin-bottom rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+                    <MenuItem v-slot="{ active }">
+                      <router-link
+                        :to="adminProfilePath"
+                        :class="[active ? 'bg-gray-100 dark:bg-white/5' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-300']"
+                      >
+                        {{ m.userMenu.yourProfile }}
+                      </router-link>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                      <button
+                        type="button"
+                        @click="handleLogout"
+                        :class="[active ? 'bg-gray-100 dark:bg-white/5' : '', 'block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300']"
+                      >
+                        {{ m.userMenu.signOut }}
+                      </button>
+                    </MenuItem>
+                  </MenuItems>
+                </transition>
+              </Menu>
             </li>
           </ul>
         </nav>
@@ -92,10 +124,42 @@
       </button>
       <div class="flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{{ m.adminNav.dashboard }}</div>
       <LanguageSwitcher />
-      <a href="#">
-        <span class="sr-only">Your profile</span>
-        <img class="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-      </a>
+      <Menu as="div" class="relative">
+        <MenuButton class="relative flex items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+          <span class="sr-only">Open user menu</span>
+          <span class="size-8 rounded-full outline -outline-offset-1 outline-black/5 dark:outline-white/10 bg-indigo-700 flex items-center justify-center text-xs font-bold text-white">
+            {{ userInitials }}
+          </span>
+        </MenuButton>
+        <transition
+          enter-active-class="transition ease-out duration-200"
+          enter-from-class="transform opacity-0 scale-95"
+          enter-to-class="transform scale-100 opacity-100"
+          leave-active-class="transition ease-in duration-75"
+          leave-from-class="transform scale-100 opacity-100"
+          leave-to-class="transform opacity-0 scale-95"
+        >
+          <MenuItems class="absolute right-0 z-40 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+            <MenuItem v-slot="{ active }">
+              <router-link
+                :to="adminProfilePath"
+                :class="[active ? 'bg-gray-100 dark:bg-white/5' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-300']"
+              >
+                {{ m.userMenu.yourProfile }}
+              </router-link>
+            </MenuItem>
+            <MenuItem v-slot="{ active }">
+              <button
+                type="button"
+                @click="handleLogout"
+                :class="[active ? 'bg-gray-100 dark:bg-white/5' : '', 'block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300']"
+              >
+                {{ m.userMenu.signOut }}
+              </button>
+            </MenuItem>
+          </MenuItems>
+        </transition>
+      </Menu>
     </div>
 
     <main class="py-10 lg:pl-72">
@@ -119,12 +183,15 @@
 import { ref, computed } from 'vue'
 import ChatWidget from '@/modules/client/components/ChatWidget.vue'
 import LanguageSwitcher from '@/modules/common/components/LanguageSwitcher.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/modules/auth/composables/useAuth'
 import { useI18n } from '@/i18n'
+import showToast from '@/modules/common/composables/useToast'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
   Bars3Icon,
+  ChevronUpDownIcon,
   HomeIcon,
   UsersIcon,
   ShieldCheckIcon,
@@ -138,6 +205,7 @@ import {
 
 const { m } = useI18n()
 const route = useRoute()
+const router = useRouter()
 
 const navigationItems = [
   { key: 'dashboard', href: '/admin', icon: HomeIcon },
@@ -159,6 +227,29 @@ const navigation = computed(() =>
 )
 
 const sidebarOpen = ref(false)
-const { user, isLoading } = useAuth()
+const { user, isLoading, logout } = useAuth()
 const isAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase() === 'admin')))
+
+const adminDisplayName = computed(() => user.value?.name || 'Admin')
+const adminProfilePath = computed(() => user.value?.id ? `/admin/users/${user.value.id}` : '/admin')
+const userInitials = computed(() => {
+  const name = user.value?.name || 'A'
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+})
+
+const handleLogout = async () => {
+  try {
+    await logout()
+    showToast(m.value.userMenu.loggedOut)
+  } catch {
+    // error toast handled in useAuth
+  } finally {
+    router.push('/login')
+  }
+}
 </script>

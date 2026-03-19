@@ -10,16 +10,16 @@
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
-        Back to tickets
+        {{ m.ticketsUi.backToTickets }}
       </router-link>
     </div>
 
     <!-- Card -->
     <div class="bg-white dark:bg-gray-900 shadow rounded-lg">
       <div class="px-4 py-5 sm:px-6">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Open a new ticket</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ m.ticketsUi.openNewTicket }}</h3>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Describe your issue and our team will get back to you.
+          {{ m.ticketsUi.openNewTicketSubtitle }}
         </p>
       </div>
 
@@ -30,14 +30,14 @@
         <!-- Title -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Title <span class="text-red-500">*</span>
+            {{ m.ticketsUi.title }} <span class="text-red-500">*</span>
           </label>
           <input
             v-model="form.title"
             type="text"
             required
             maxlength="255"
-            placeholder="Brief summary of your issue"
+            :placeholder="m.ticketsUi.titlePlaceholder"
             class="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-700"
           />
         </div>
@@ -45,12 +45,12 @@
         <!-- Description -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Description
+            {{ m.ticketsUi.description }}
           </label>
           <textarea
             v-model="form.description"
             rows="6"
-            placeholder="Describe your issue in detail…"
+            :placeholder="m.ticketsUi.descriptionPlaceholder"
             class="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-700"
           />
         </div>
@@ -61,7 +61,7 @@
             to="/tickets"
             class="flex-1 text-center px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 text-sm font-medium"
           >
-            Cancel
+            {{ m.ticketsUi.cancel }}
           </router-link>
           <button
             type="submit"
@@ -71,7 +71,7 @@
             <svg v-if="loading" class="animate-spin h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {{ loading ? 'Creating…' : 'Open ticket' }}
+            {{ loading ? m.ticketsUi.creating : m.ticketsUi.openTicket }}
           </button>
         </div>
       </form>
@@ -85,10 +85,12 @@ import { useRouter } from 'vue-router'
 import { useTickets } from '../composables/useTickets'
 import { useToast } from '@/modules/common/composables/useToast'
 import type { TicketForm } from '../interfaces/ticket.interface'
+import { useI18n } from '@/i18n'
 
 const router = useRouter()
 const toast = useToast()
 const { loading, createTicket } = useTickets()
+const { m } = useI18n()
 
 const form = reactive<TicketForm>({
   title: '',
@@ -102,10 +104,10 @@ const handleSubmit = async () => {
       title: form.title.trim(),
       description: form.description?.trim() || undefined,
     })
-    toast.success('Ticket created successfully')
+    toast.success(m.value.ticketsUi.ticketCreated)
     router.push(`/tickets/${ticket.id}`)
   } catch (err: any) {
-    const msg = err?.response?.data?.message || 'Error creating ticket'
+    const msg = err?.response?.data?.message || m.value.ticketsUi.createTicketError
     toast.error(msg)
   }
 }
