@@ -21,7 +21,7 @@ jobs:
       - name: Build Project
         run: |
           npm ci
-          npm run build
+          VITE_API_URL=${{ secrets.VITE_API_URL }} npm run build
 
       - name: Prepare remote folder
         uses: appleboy/ssh-action@v1.0.3
@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "dist/**"
           target: "/var/www/sims-frontend/dist"
-          strip_components: 2
+          strip_components: 1
 
       - name: Reload Nginx
         uses: appleboy/ssh-action@v1.0.3
