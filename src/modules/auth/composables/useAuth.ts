@@ -37,19 +37,61 @@ const user = ref<User | null>(null)
 
 const isAuthenticated = computed(() => !!user.value)
 
+const normalizeTenantSlug = (input: string): string => {
+  return String(input || '')
+    .trim()
+    .toLowerCase()
+    .replace(/['"]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+const formatApiError = (err: any, fallbackMsg: string): string => {
+  const status = err?.response?.status
+  const data = err?.response?.data
+  const message = data?.message || err?.message || fallbackMsg
+  if (status) return `${message} (HTTP ${status})`
+  return message
+}
+
+const looksLikeTenancyHeaderError = (err: any): boolean => {
+  const status = err?.response?.status
+  const msg = String(err?.response?.data?.message || '').toLowerCase()
+  if (status === 422 && (msg.includes('tenant') || msg.includes('x-tenant'))) return true
+  if (status === 500 && (msg.includes('tenant') || msg.includes('tenancy'))) return true
+  return false
+}
+
 export function useAuth() {
   const router = useRouter()
 
   const isCentralHost = (): boolean => {
     if (typeof window === 'undefined') return false
     const host = window.location.hostname.toLowerCase()
-    return host === 'localhost' || host === '127.0.0.1' || host === 'app.localhost'
+
+    const forced = String((import.meta as any)?.env?.VITE_FORCE_CENTRAL_LOGIN || '').toLowerCase()
+    if (['true', '1', 'yes'].includes(forced)) return true
+
+    const configuredCentralHosts = String((import.meta as any)?.env?.VITE_CENTRAL_HOSTNAMES || '')
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean)
+    if (configuredCentralHosts.includes(host)) return true
+
+    if (host === 'localhost' || host === '127.0.0.1' || host === 'app.localhost') return true
+
+    if (host.endsWith('.ondigitalocean.app')) {
+      const parts = host.split('.')
+      if (parts.length === 3) return true
+    }
+
+    return false
   }
 
-  const redirectToTenantDomain = (tenantHost: string, exchangeToken: string, tenantSlug: string): void => {
+  const redirectToTenantDomain = (tenantHost: string, exchangeToken: string, tenantRef: string): void => {
     const protocol = window.location.protocol
     const portSuffix = window.location.port ? `:${window.location.port}` : ''
-    const tenantUrl = `${protocol}//${tenantHost}${portSuffix}/auth/callback?exchange_token=${encodeURIComponent(exchangeToken)}&tenant=${encodeURIComponent(tenantSlug)}`
+    const tenantUrl = `${protocol}//${tenantHost}${portSuffix}/auth/callback?exchange_token=${encodeURIComponent(exchangeToken)}&tenant=${encodeURIComponent(tenantRef)}`
     window.location.assign(tenantUrl)
   }
 
@@ -81,22 +123,31 @@ export function useAuth() {
     isLoading.value = true
     error.value = null
 
-    const normalizedTenant = tenantSlug.toLowerCase()
+    const normalizedTenant = normalizeTenantSlug(tenantSlug)
+    if (!normalizedTenant) {
+      error.value = 'Organization is required'
+      isLoading.value = false
+      return false
+    }
+
+    const tryCentralLogin = async (): Promise<boolean> => {
+      const response = await apiClient.post<CentralLoginResponse>('/central/login', {
+        organization: normalizedTenant,
+        email,
+        password,
+      })
+
+      const tenantRef = response.data.tenant_id || normalizedTenant
+      redirectToTenantDomain(response.data.tenant_host, response.data.exchange_token, tenantRef)
+      return false
+    }
 
     // Central domain login: authenticate once and redirect user to tenant subdomain.
     if (isCentralHost()) {
       try {
-        const response = await apiClient.post<CentralLoginResponse>('/central/login', {
-          organization: normalizedTenant,
-          email,
-          password,
-        })
-
-        redirectToTenantDomain(response.data.tenant_host, response.data.exchange_token, normalizedTenant)
-        return false
+        return await tryCentralLogin()
       } catch (err: any) {
-        const msg = err.response?.data?.message || 'Error logging in'
-        error.value = msg
+        error.value = formatApiError(err, 'Error logging in')
         return false
       } finally {
         isLoading.value = false
@@ -108,7 +159,11 @@ export function useAuth() {
 
     try {
       const loginData: LoginRequest = { email, password }
-      const response = await apiClient.post<LoginResponse>('/login', loginData)
+      const response = await apiClient.post<LoginResponse>('/login', loginData, {
+        headers: {
+          'X-Tenant': normalizedTenant,
+        },
+      })
 
       const token = response.data.token
       
@@ -118,7 +173,13 @@ export function useAuth() {
         apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
         // Fetch user data after successful login
         const userFetched = await fetchUser()
-        if (!userFetched) {
+        if (userFetched) {
+          const tenantFromUser = typeof (user.value as any)?.tenant_id === 'string'
+            ? normalizeTenantSlug((user.value as any).tenant_id)
+            : ''
+          setCookie(TENANT_COOKIE_NAME, tenantFromUser || normalizedTenant)
+          try { localStorage.setItem('active_admin_tenant', tenantFromUser || normalizedTenant) } catch {}
+        } else {
           // Login failed after token – remove tenant cookie
           deleteCookie(TENANT_COOKIE_NAME)
         }
@@ -128,8 +189,20 @@ export function useAuth() {
         return false
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Error logging in'
-      error.value = msg
+      const status = err?.response?.status
+      if (looksLikeTenancyHeaderError(err) || status === 500) {
+        try {
+          return await tryCentralLogin()
+        } catch (err2: any) {
+          error.value = formatApiError(err2, 'Error logging in')
+          deleteCookie(TENANT_COOKIE_NAME)
+          return false
+        } finally {
+          isLoading.value = false
+        }
+      }
+
+      error.value = formatApiError(err, 'Error logging in')
       deleteCookie(TENANT_COOKIE_NAME)
       return false
     } finally {
@@ -142,8 +215,9 @@ export function useAuth() {
     error.value = null
 
     try {
-      setCookie(TENANT_COOKIE_NAME, tenantSlug.toLowerCase())
-      localStorage.setItem('active_admin_tenant', tenantSlug.toLowerCase())
+      const normalizedTenant = normalizeTenantSlug(tenantSlug)
+      setCookie(TENANT_COOKIE_NAME, normalizedTenant)
+      localStorage.setItem('active_admin_tenant', normalizedTenant)
 
       const response = await apiClient.post<LoginResponse>('/auth/exchange-token', {
         exchange_token: exchangeToken,
@@ -161,6 +235,14 @@ export function useAuth() {
       apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
 
       const userFetched = await fetchUser()
+      if (userFetched) {
+        const tenantFromUser = typeof (user.value as any)?.tenant_id === 'string'
+          ? normalizeTenantSlug((user.value as any).tenant_id)
+          : ''
+        setCookie(TENANT_COOKIE_NAME, tenantFromUser || normalizedTenant)
+        try { localStorage.setItem('active_admin_tenant', tenantFromUser || normalizedTenant) } catch {}
+      }
+
       return userFetched
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Error completing login'
