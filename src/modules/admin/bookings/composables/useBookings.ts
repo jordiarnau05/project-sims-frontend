@@ -50,8 +50,13 @@ export function useBookings() {
       currentBooking.value = response.data
       return response.data
     } catch (err: any) {
-      console.error(err)
-      error.value = err?.response?.data?.message || 'Error loading booking'
+      const status = err?.response?.status
+      if (status === 404) {
+        error.value = 'Booking not found or no longer available'
+      } else {
+        console.error(err)
+        error.value = err?.response?.data?.message || 'Error loading booking'
+      }
       throw err
     } finally {
       loading.value = false

@@ -2,35 +2,35 @@
   <div class="px-4 sm:px-6 lg:px-8">
 
     <!-- Header -->
-    <PageHeading title="Tickets" description="Manage all support tickets" />
+    <PageHeading :title="m.adminTicketsUi.title" :description="m.adminTicketsUi.description" />
 
     <!-- Filters -->
     <div class="mt-6 flex flex-wrap gap-3 items-center">
       <input
         v-model="search"
         type="text"
-        placeholder="Search by title or user..."
+        :placeholder="m.adminTicketsUi.searchPlaceholder"
         class="block w-full max-w-xs rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-700"
       />
       <select
         v-model="statusFilter"
         class="rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-700"
       >
-        <option value="all">All statuses</option>
-        <option value="active">Active</option>
-        <option value="closed">Closed</option>
+        <option value="all">{{ m.adminTicketsUi.allStatuses }}</option>
+        <option value="active">{{ m.commonUi.active }}</option>
+        <option value="closed">{{ m.ticketsUi.closed }}</option>
       </select>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="mt-8 text-center text-gray-500 dark:text-gray-400">Loading tickets...</div>
+    <div v-if="loading" class="mt-8 text-center text-gray-500 dark:text-gray-400">{{ m.adminTicketsUi.loading }}</div>
 
     <!-- Error -->
     <div v-else-if="error" class="mt-8 text-center text-red-500">{{ error }}</div>
 
     <!-- Table -->
     <AdminsTable v-else :columns="columns" :empty="filteredTickets.length === 0">
-      <template #empty>No tickets found.</template>
+      <template #empty>{{ m.adminTicketsUi.empty }}</template>
 
       <tr v-for="t in filteredTickets" :key="t.id">
         <AdminTd first variant="muted">#{{ t.id }}</AdminTd>
@@ -47,7 +47,7 @@
                 : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
             ]"
           >
-            {{ t.active ? 'Active' : 'Closed' }}
+            {{ t.active ? m.commonUi.active : m.ticketsUi.closed }}
           </span>
         </AdminTd>
         <AdminTd variant="muted">{{ formatDate(t.created_at) }}</AdminTd>
@@ -56,13 +56,13 @@
             <router-link
               :to="`/admin/tickets/${t.id}`"
               class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-              title="View"
+              :title="m.commonUi.view"
             >
               <span class="material-icons text-xl">visibility</span>
             </router-link>
             <button
               class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-              title="Delete"
+              :title="m.commonUi.delete"
               @click="confirmDelete(t)"
             >
               <span class="material-icons text-xl">delete</span>
@@ -75,8 +75,8 @@
     <!-- Delete confirmation dialog -->
     <ConfirmDialog
       :visible="!!ticketToDelete"
-      title="Delete ticket"
-      :message="`Are you sure you want to delete ticket '${ticketToDelete?.title}'? This action cannot be undone.`"
+      :title="m.adminTicketsUi.deleteTitle"
+      :message="m.adminTicketsUi.deleteMsg.replace('{title}', ticketToDelete?.title || '-')"
       @confirm="handleDeleteConfirmed"
       @cancel="ticketToDelete = null"
     />
@@ -87,6 +87,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useTickets } from '@/modules/tickets/composables/useTickets'
 import { useToast } from '@/modules/common/composables/useToast'
+import { useI18n } from '@/i18n'
 import type { Ticket } from '@/modules/tickets/interfaces/ticket.interface'
 import AdminsTable from '@/modules/admin/components/AdminsTable.vue'
 import AdminTd from '@/modules/admin/components/AdminTd.vue'
@@ -95,16 +96,17 @@ import ConfirmDialog from '@/modules/admin/components/ConfirmDialog.vue'
 
 const { tickets, loading, error, getTickets, deleteTicket } = useTickets()
 const toast = useToast()
+const { m } = useI18n()
 
 const columns = [
-  { key: 'id', label: 'ID' },
-  { key: 'title', label: 'Title' },
-  { key: 'user', label: 'User' },
-  { key: 'email', label: 'Email' },
-  { key: 'messages', label: 'Messages' },
-  { key: 'status', label: 'Status' },
-  { key: 'created_at', label: 'Created' },
-  { key: 'actions', label: 'Actions', srOnly: true },
+  { key: 'id', label: m.value.commonUi.id },
+  { key: 'title', label: m.value.ticketsUi.title },
+  { key: 'user', label: m.value.adminTicketsUi.user },
+  { key: 'email', label: m.value.commonUi.email },
+  { key: 'messages', label: m.value.adminTicketsUi.messages },
+  { key: 'status', label: m.value.commonUi.status },
+  { key: 'created_at', label: m.value.commonUi.created },
+  { key: 'actions', label: m.value.commonUi.actions, srOnly: true },
 ]
 
 const search = ref('')
@@ -136,9 +138,9 @@ const handleDeleteConfirmed = async () => {
   if (!ticketToDelete.value) return
   try {
     await deleteTicket(ticketToDelete.value.id)
-    toast.success('Ticket deleted successfully')
+    toast.success(m.value.adminTicketsUi.deleteSuccess)
   } catch {
-    toast.error('Error deleting ticket')
+    toast.error(m.value.adminTicketsUi.deleteError)
   } finally {
     ticketToDelete.value = null
   }

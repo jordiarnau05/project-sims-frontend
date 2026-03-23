@@ -60,6 +60,27 @@ export const useBookingStore = defineStore('booking', () => {
     bookings.value.filter(b => b.status === 'cancelled')
   )
 
+  const extractCollection = (payload: any): any[] => {
+    if (Array.isArray(payload)) return payload
+    if (!payload || typeof payload !== 'object') return []
+
+    const candidates = [
+      payload.data,
+      payload.reservations,
+      payload.bookings,
+      payload.results,
+    ]
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) return candidate
+      if (candidate && typeof candidate === 'object' && Array.isArray(candidate.data)) {
+        return candidate.data
+      }
+    }
+
+    return []
+  }
+
   // Actions
   async function fetchBookings() {
     loading.value = true
@@ -67,9 +88,7 @@ export const useBookingStore = defineStore('booking', () => {
     
     try {
       const response = await apiClient.get('/reservations')
-      const bookingsData = Array.isArray(response.data) 
-        ? response.data 
-        : (response.data.data || [])
+      const bookingsData = extractCollection(response.data)
       
       bookings.value = bookingsData
       return bookings.value
@@ -214,9 +233,7 @@ export const useBookingStore = defineStore('booking', () => {
   async function fetchVehicleBookings(vehicleId: number): Promise<Booking[]> {
     try {
       const response = await apiClient.get('/reservations')
-      const all: Booking[] = Array.isArray(response.data)
-        ? response.data
-        : (response.data.data || [])
+      const all: Booking[] = extractCollection(response.data) as Booking[]
       const now = Date.now()
       const twoHoursMs = 2 * 60 * 60 * 1000
       return all.filter(b => {

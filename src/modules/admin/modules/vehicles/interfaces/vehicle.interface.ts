@@ -3,6 +3,8 @@ export interface Vehicle {
   license_plate: string
   brand: string | null
   model: string | null
+  latitude?: number | null
+  longitude?: number | null
   active: boolean
   created_at: string
   updated_at: string
@@ -12,6 +14,8 @@ export interface VehicleForm {
   license_plate: string
   brand: string
   model: string
+  latitude?: number | null
+  longitude?: number | null
   active: boolean
 }
 

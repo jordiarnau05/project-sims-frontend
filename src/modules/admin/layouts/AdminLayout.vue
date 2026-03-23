@@ -214,16 +214,12 @@ const navigationItems = [
   { key: 'roles', href: '/admin/roles', icon: ShieldCheckIcon },
   { key: 'bookings', href: '/admin/bookings', icon: CalendarDaysIcon },
   { key: 'vehicles', href: '/admin/vehicles', icon: TruckIcon },
-  { key: 'tenants', href: '/admin/tenants', icon: BuildingOfficeIcon },
+  { key: 'tenants', href: '/admin/tenants', icon: BuildingOfficeIcon, superAdminOnly: true },
   { key: 'tickets', href: '/admin/tickets', icon: TicketIcon },
 ]
 
 const sidebarOpen = ref(false)
-<<<<<<< HEAD
 const { user, isLoading, logout } = useAuth()
-=======
-const { user, isLoading } = useAuth()
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
 const isAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase().includes('admin'))))
 const isSuperAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase().includes('superadmin'))))
 
@@ -236,7 +232,6 @@ const navigation = computed(() =>
       current: route.path === item.href || (item.href !== '/admin' && route.path.startsWith(item.href))
     }))
 )
-<<<<<<< HEAD
 
 const adminDisplayName = computed(() => user.value?.name || 'Admin')
 const adminProfilePath = computed(() => user.value?.id ? `/admin/users/${user.value.id}` : '/admin')
@@ -260,6 +255,4 @@ const handleLogout = async () => {
     router.push('/login')
   }
 }
-=======
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
 </script>

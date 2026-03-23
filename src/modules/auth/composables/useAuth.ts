@@ -46,10 +46,10 @@ export function useAuth() {
     return host === 'localhost' || host === '127.0.0.1' || host === 'app.localhost'
   }
 
-  const redirectToTenantDomain = (tenantHost: string, exchangeToken: string, tenantId: string): void => {
+  const redirectToTenantDomain = (tenantHost: string, exchangeToken: string, tenantSlug: string): void => {
     const protocol = window.location.protocol
     const portSuffix = window.location.port ? `:${window.location.port}` : ''
-    const tenantUrl = `${protocol}//${tenantHost}${portSuffix}/auth/callback?exchange_token=${encodeURIComponent(exchangeToken)}&tenant=${encodeURIComponent(tenantId)}`
+    const tenantUrl = `${protocol}//${tenantHost}${portSuffix}/auth/callback?exchange_token=${encodeURIComponent(exchangeToken)}&tenant=${encodeURIComponent(tenantSlug)}`
     window.location.assign(tenantUrl)
   }
 
@@ -92,7 +92,7 @@ export function useAuth() {
           password,
         })
 
-        redirectToTenantDomain(response.data.tenant_host, response.data.exchange_token, response.data.tenant_id)
+        redirectToTenantDomain(response.data.tenant_host, response.data.exchange_token, normalizedTenant)
         return false
       } catch (err: any) {
         const msg = err.response?.data?.message || 'Error logging in'
@@ -118,10 +118,7 @@ export function useAuth() {
         apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
         // Fetch user data after successful login
         const userFetched = await fetchUser()
-        // Update tenant cookie from actual user data (source of truth)
-        if (userFetched && user.value?.tenant_id) {
-          setCookie(TENANT_COOKIE_NAME, user.value.tenant_id)
-        } else if (!userFetched) {
+        if (!userFetched) {
           // Login failed after token – remove tenant cookie
           deleteCookie(TENANT_COOKIE_NAME)
         }
@@ -164,10 +161,6 @@ export function useAuth() {
       apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
 
       const userFetched = await fetchUser()
-      if (userFetched && user.value?.tenant_id) {
-        setCookie(TENANT_COOKIE_NAME, user.value.tenant_id)
-      }
-
       return userFetched
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Error completing login'

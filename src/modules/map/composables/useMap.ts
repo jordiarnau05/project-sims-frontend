@@ -106,6 +106,28 @@ const rawVehicles = ref<Vehicle[]>([])
 // IDs de vehicles amb reserva activa/pendent detectats des del frontend
 const bookedVehicleIds = ref<Set<number>>(new Set())
 
+const extractCollection = (payload: any): any[] => {
+  if (Array.isArray(payload)) return payload
+  if (!payload || typeof payload !== 'object') return []
+
+  const candidates = [
+    payload.data,
+    payload.vehicles,
+    payload.reservations,
+    payload.bookings,
+    payload.results,
+  ]
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) return candidate
+    if (candidate && typeof candidate === 'object' && Array.isArray(candidate.data)) {
+      return candidate.data
+    }
+  }
+
+  return []
+}
+
 const markVehicleAsBooked = (vehicleId: number, booked: boolean) => {
   const newSet = new Set(bookedVehicleIds.value)
   if (booked) {
@@ -131,8 +153,8 @@ const fetchVehicles = async (endpoint = '/vehicles') => {
       apiClient.get('/reservations').catch(() => ({ data: [] }))
     ])
 
-    // El backend pot retornar un array directament o un objecte amb data
-    const vehiclesData = Array.isArray(vehiclesResponse.data) ? vehiclesResponse.data : (vehiclesResponse.data.data || [])
+    // El backend pot retornar diferents formes de payload
+    const vehiclesData = extractCollection(vehiclesResponse.data)
     
     if (!Array.isArray(vehiclesData)) {
       console.error('Backend did not return an array:', vehiclesResponse.data)
@@ -144,9 +166,7 @@ const fetchVehicles = async (endpoint = '/vehicles') => {
     // Un vehicle es considera ocupat si:
     //   - té una reserva 'active' (vehicle en ús ara mateix)
     //   - té una reserva 'pending'/'confirmed' que comença en menys de 2 hores
-    const reservationsData: any[] = Array.isArray(reservationsResponse.data)
-      ? reservationsResponse.data
-      : (reservationsResponse.data.data || [])
+    const reservationsData: any[] = extractCollection(reservationsResponse.data)
     const now = Date.now()
     const twoHoursMs = 2 * 60 * 60 * 1000
     const occupiedIds = new Set<number>(

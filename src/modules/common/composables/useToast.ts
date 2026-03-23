@@ -1,6 +1,14 @@
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+const baseToastOptions = {
+  theme: 'dark' as const,
+  position: (isMobile ? 'top-right' : 'bottom-right') as const,
+  pauseOnHover: true,
+  pauseOnFocusLoss: true,
+}
+
 function formatMessage(payload: string | Error | unknown) {
   if (typeof payload === 'string') return payload
   if (payload instanceof Error) return payload.message
@@ -13,11 +21,9 @@ function formatMessage(payload: string | Error | unknown) {
 
 export function showToast(payload: string | Error | unknown) {
   const message = formatMessage(payload)
-  toast(message, { 
-    theme: 'dark', 
+  toast(message, {
+    ...baseToastOptions,
     type: 'error',
-    pauseOnHover: false, 
-    pauseOnFocusLoss: false
   })
 }
 
@@ -25,20 +31,16 @@ export function useToast() {
   return {
     success: (message: string | Error | unknown) => {
       const msg = formatMessage(message)
-      toast(msg, { 
-        theme: 'dark', 
+      toast(msg, {
+        ...baseToastOptions,
         type: 'success',
-        pauseOnHover: false, 
-        pauseOnFocusLoss: false
       })
     },
     error: (message: string | Error | unknown) => {
       const msg = formatMessage(message)
-      toast(msg, { 
-        theme: 'dark', 
+      toast(msg, {
+        ...baseToastOptions,
         type: 'error',
-        pauseOnHover: false, 
-        pauseOnFocusLoss: false
       })
     }
   }

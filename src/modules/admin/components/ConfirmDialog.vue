@@ -9,14 +9,17 @@
     </div>
 
     <template #footer>
-      <button @click="onCancel" class="mr-2">Cancel</button>
-      <button @click="onConfirm" class="bg-red-600 text-white px-3 py-1 rounded">Confirm</button>
+      <button @click="onCancel" class="mr-2">{{ m.commonUi.cancel }}</button>
+      <button @click="onConfirm" class="bg-red-600 text-white px-3 py-1 rounded">{{ m.commonUi.confirm }}</button>
     </template>
   </Modal>
 </template>
 
 <script setup lang="ts">
 import Modal from './Modal.vue'
+import { useI18n } from '@/i18n'
+
+const { m } = useI18n()
 
 const props = defineProps<{
   visible: boolean

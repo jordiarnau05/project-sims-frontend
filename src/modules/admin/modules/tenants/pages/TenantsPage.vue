@@ -2,15 +2,15 @@
   <div class="px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <PageHeading
-      title="Tenants"
-      description="Gestión de empresas / organizaciones"
+      :title="m.adminTenantsUi.title"
+      :description="m.adminTenantsUi.description"
     >
       <template #actions>
         <router-link
           to="/admin/tenants/create"
           class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          Añadir tenant
+          {{ m.adminTenantsUi.add }}
         </router-link>
       </template>
     </PageHeading>
@@ -21,14 +21,14 @@
         v-model="filters.search"
         @input="handleSearch"
         type="text"
-        placeholder="Buscar por nombre, slug, email o CIF..."
+        :placeholder="m.adminTenantsUi.searchPlaceholder"
         class="block w-full max-w-md rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-700"
       />
     </div>
 
     <!-- Loading state -->
     <div v-if="loading" class="mt-8 text-center text-gray-500 dark:text-gray-400">
-      Cargando tenants...
+      {{ m.adminTenantsUi.loading }}
     </div>
 
     <!-- Error state -->
@@ -43,7 +43,7 @@
       :empty="tenants.length === 0"
     >
       <template #empty>
-        No hay tenants disponibles
+        {{ m.adminTenantsUi.empty }}
       </template>
 
       <tr v-for="tenant in tenants" :key="tenant.id">
@@ -65,10 +65,10 @@
         <AdminTd variant="muted">
           <button
             @click="handleToggleActive(tenant)"
-            :title="tenant.active ? 'Desactivar' : 'Activar'"
+            :title="tenant.active ? m.adminTenantsUi.deactivate : m.adminTenantsUi.activate"
             class="cursor-pointer"
           >
-            <StatusBadge :active="tenant.active" active-text="Activo" inactive-text="Inactivo" />
+            <StatusBadge :active="tenant.active" :active-text="m.commonUi.active" :inactive-text="m.commonUi.inactive" />
           </button>
         </AdminTd>
         <AdminTd variant="muted">
@@ -82,35 +82,35 @@
             <router-link
               :to="`/admin/tenants/${tenant.id}`"
               class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-              title="Ver"
+              :title="m.commonUi.view"
             >
               <span class="material-icons text-xl">visibility</span>
-              <span class="sr-only">Ver, {{ tenant.name }}</span>
+              <span class="sr-only">{{ m.commonUi.view }}, {{ tenant.name }}</span>
             </router-link>
             <router-link
               :to="`/admin/tenants/${tenant.id}/edit`"
               class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
-              title="Editar"
+              :title="m.commonUi.edit"
             >
               <span class="material-icons text-xl">edit</span>
-              <span class="sr-only">Editar, {{ tenant.name }}</span>
+              <span class="sr-only">{{ m.commonUi.edit }}, {{ tenant.name }}</span>
             </router-link>
             <router-link
               :to="`/admin/tenant-workspace`"
               class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-              title="Gestionar tenant"
+              :title="m.adminTenantsUi.manageTenant"
               @click="activateTenantContext(tenant.slug)"
             >
               <span class="material-icons text-xl">hub</span>
-              <span class="sr-only">Gestionar tenant, {{ tenant.name }}</span>
+              <span class="sr-only">{{ m.adminTenantsUi.manageTenant }}, {{ tenant.name }}</span>
             </router-link>
             <button
               @click="confirmDelete(tenant)"
               class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-              title="Eliminar"
+              :title="m.commonUi.delete"
             >
               <span class="material-icons text-xl">delete</span>
-              <span class="sr-only">Eliminar, {{ tenant.name }}</span>
+              <span class="sr-only">{{ m.commonUi.delete }}, {{ tenant.name }}</span>
             </button>
           </div>
         </AdminTd>
@@ -129,8 +129,8 @@
     <!-- Delete confirmation -->
     <ConfirmDialog
       :visible="showDeleteDialog"
-      title="Eliminar tenant"
-      :message="`¿Estás seguro de que quieres eliminar el tenant '${tenantToDelete?.name}'?`"
+      :title="m.adminTenantsUi.deleteTitle"
+      :message="m.adminTenantsUi.deleteMsg.replace('{name}', tenantToDelete?.name || '-')"
       @confirm="handleDelete"
       @cancel="showDeleteDialog = false"
     />
@@ -140,6 +140,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useTenants } from '../composables/useTenants'
+import { useI18n } from '@/i18n'
 import type { Tenant, TenantFilters } from '../interfaces/tenant.interface'
 import AdminsTable from '@/modules/admin/components/AdminsTable.vue'
 import AdminTd from '@/modules/admin/components/AdminTd.vue'
@@ -149,6 +150,7 @@ import StatusBadge from '@/modules/admin/components/StatusBadge.vue'
 import ConfirmDialog from '@/modules/admin/components/ConfirmDialog.vue'
 
 const { tenants, loading, error, pagination, getTenants, deleteTenant, toggleActive } = useTenants()
+const { m } = useI18n()
 
 // Delete state
 const showDeleteDialog = ref(false)
@@ -183,15 +185,15 @@ async function handleToggleActive(tenant: Tenant) {
 }
 
 const columns = [
-  { key: 'id', label: 'ID' },
-  { key: 'name', label: 'Nombre' },
-  { key: 'slug', label: 'Slug' },
-  { key: 'email', label: 'Email' },
-  { key: 'tax_id', label: 'CIF/NIF' },
-  { key: 'active', label: 'Estado' },
-  { key: 'users_count', label: 'Usuarios' },
-  { key: 'vehicles_count', label: 'Vehículos' },
-  { key: 'actions', label: 'Acciones', srOnly: true }
+  { key: 'id', label: m.value.commonUi.id },
+  { key: 'name', label: m.value.adminTenantsUi.name },
+  { key: 'slug', label: m.value.commonUi.slug },
+  { key: 'email', label: m.value.commonUi.email },
+  { key: 'tax_id', label: m.value.adminTenantsUi.taxId },
+  { key: 'active', label: m.value.commonUi.status },
+  { key: 'users_count', label: m.value.adminTenantsUi.users },
+  { key: 'vehicles_count', label: m.value.adminTenantsUi.vehicles },
+  { key: 'actions', label: m.value.commonUi.actions, srOnly: true }
 ]
 
 const filters = ref<TenantFilters>({

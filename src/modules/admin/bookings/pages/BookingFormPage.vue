@@ -98,7 +98,7 @@ import { useToast } from '@/modules/common/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
-const { getBooking, updateBooking, loading } = useBookings()
+const { getBooking, updateBooking, loading, error } = useBookings()
 const { success: toastSuccess, error: toastError } = useToast()
 
 const bookingId = computed(() => (route.params.id ? Number(route.params.id) : null))
@@ -128,7 +128,7 @@ onMounted(async () => {
         form.scheduled_start = d.toISOString().slice(0, 16)
       }
     } catch (e) {
-      toastError('Error loading booking')
+      toastError(error.value || 'Error loading booking')
       router.push('/admin/bookings')
     }
   }

@@ -41,6 +41,26 @@ export const useVehicleStore = defineStore('vehicle', () => {
     vehicles.value.filter(v => v.active === true)
   )
 
+  const extractCollection = (payload: any): any[] => {
+    if (Array.isArray(payload)) return payload
+    if (!payload || typeof payload !== 'object') return []
+
+    const candidates = [
+      payload.data,
+      payload.vehicles,
+      payload.results,
+    ]
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) return candidate
+      if (candidate && typeof candidate === 'object' && Array.isArray(candidate.data)) {
+        return candidate.data
+      }
+    }
+
+    return []
+  }
+
   // Actions
   async function fetchVehicles() {
     loading.value = true
@@ -48,9 +68,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
     
     try {
       const response = await apiClient.get('/vehicles')
-      const vehiclesData = Array.isArray(response.data) 
-        ? response.data 
-        : (response.data.data || [])
+      const vehiclesData = extractCollection(response.data)
       
       vehicles.value = vehiclesData.map((v: any) => ({
         id: v.id,

@@ -6,18 +6,22 @@
     </div>
     
     <!-- Map -->
-    <!-- Reserve left space for admin sidebar (lg) and reduce height on small screens -->
-    <div ref="mapContainer" class="w-full h-[500px] lg:ml-0 lg:pl-0 rounded-lg shadow-lg z-0" style="height: 60vh;"></div>
-    <div class="map-legend absolute top-6 right-6 bg-white/90 dark:bg-gray-900/90 text-sm p-2 rounded shadow">
-      <div class="flex items-center justify-between mb-1">
-        <div class="font-semibold">{{ m.adminMapUi.legend }}</div>
-        <button @click="legendOpen = !legendOpen" class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">{{ legendOpen ? m.adminMapUi.hide : m.adminMapUi.show }}</button>
+    <!-- Reserve left space for admin sidebar (lg) and keep legend anchored inside map -->
+    <div class="relative w-full h-[60vh] min-h-[420px] rounded-lg shadow-lg overflow-hidden">
+      <div ref="mapContainer" class="w-full h-full lg:ml-0 lg:pl-0 z-0"></div>
+      <div class="map-legend absolute top-3 right-3 md:top-4 md:right-4 bg-white/95 dark:bg-gray-900/95 text-sm md:text-base px-3 py-2 md:px-4 md:py-3 rounded-xl shadow-lg border border-gray-200/70 dark:border-gray-700/80 min-w-[210px] max-w-[calc(100%-1.5rem)]">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-semibold text-gray-900 dark:text-gray-100">{{ m.adminMapUi.legend }}</div>
+        <button @click="legendOpen = !legendOpen" class="text-xs md:text-sm px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">{{ legendOpen ? m.adminMapUi.hide : m.adminMapUi.show }}</button>
       </div>
       <div v-if="legendOpen">
-        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid #ffffff"></span><span>{{ m.adminMapUi.available }}</span></div>
-        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;border:2px solid #ffffff"></span><span>{{ m.adminMapUi.occupied }}</span></div>
-        <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:50%;background:#ffffff;display:inline-block;border:3px solid #ef4444"></span><span>{{ m.adminMapUi.running }}</span></div>
+        <div class="space-y-1.5 text-gray-700 dark:text-gray-200">
+          <div class="flex items-center gap-2.5"><span style="width:14px;height:14px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid #ffffff"></span><span>{{ m.adminMapUi.available }}</span></div>
+          <div class="flex items-center gap-2.5"><span style="width:14px;height:14px;border-radius:50%;background:#f59e0b;display:inline-block;border:2px solid #ffffff"></span><span>{{ m.adminMapUi.occupied }}</span></div>
+          <div class="flex items-center gap-2.5"><span style="width:14px;height:14px;border-radius:50%;background:#ffffff;display:inline-block;border:3px solid #ef4444"></span><span>{{ m.adminMapUi.running }}</span></div>
+        </div>
       </div>
+    </div>
     </div>
     
     <!-- Vehicles list as responsive cards -->
@@ -66,7 +70,7 @@ const query = ref('')
 const operativeOnly = ref(false)
 const radiusKm = ref<number | null>(null)
 const full = ref(false)
-const legendOpen = ref(false)
+const legendOpen = ref(true)
 
 const onSearch = () => setSearchQuery(query.value)
 const onToggleOperative = () => setShowOperativeOnly(operativeOnly.value)
@@ -140,12 +144,15 @@ onUnmounted(() => {
   z-index: 0 !important;
 }
 /* Legend styling */
-.map-legend { z-index: 10001; }
-/* Allow sidebar and menus to receive pointer events above the map */
-.admin-sidebar,
-.app-sidebar,
-.fixed-sidebar {
-  z-index: 9999 !important;
-  position: relative;
+.map-legend {
+  z-index: 5;
+}
+
+@media (max-width: 1023px) {
+  .map-legend {
+    top: 0.75rem;
+    right: 0.75rem;
+    max-width: calc(100% - 1.5rem);
+  }
 }
 </style>

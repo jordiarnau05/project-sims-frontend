@@ -3,9 +3,9 @@
     <div class="mx-auto max-w-4xl">
       <div class="flex items-start justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold">Sensors</h1>
+          <h1 class="text-2xl font-bold">{{ m.sensorsUi.title }}</h1>
           <p class="mt-1 text-sm text-gray-400">
-            Live distance readings (auto-refresh every 2s) via Laravel API.
+            {{ m.sensorsUi.subtitle }}
           </p>
         </div>
 
@@ -15,16 +15,16 @@
           :disabled="loadingDevices"
           @click="reload"
         >
-          Reload
+          {{ m.sensorsUi.reload }}
         </button>
       </div>
 
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="sm:col-span-1 rounded-xl bg-gray-800/60 border border-white/5 p-4">
-          <div class="text-sm font-semibold">Device</div>
+          <div class="text-sm font-semibold">{{ m.sensorsUi.device }}</div>
           <div class="mt-2">
-            <div v-if="loadingDevices" class="text-sm text-gray-400">Loading devices…</div>
-            <div v-else-if="!hasDevices" class="text-sm text-gray-400">No devices found yet.</div>
+            <div v-if="loadingDevices" class="text-sm text-gray-400">{{ m.sensorsUi.loadingDevices }}</div>
+            <div v-else-if="!hasDevices" class="text-sm text-gray-400">{{ m.sensorsUi.noDevices }}</div>
 
             <select
               v-else
@@ -44,10 +44,10 @@
         <div class="sm:col-span-2 rounded-xl bg-gray-800/60 border border-white/5 p-4">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <div class="text-sm font-semibold">Latest reading</div>
+              <div class="text-sm font-semibold">{{ m.sensorsUi.latestReading }}</div>
               <div class="mt-1 text-xs text-gray-400">
-                <span v-if="lastUpdatedAt">Updated: {{ lastUpdatedAt.toLocaleTimeString() }}</span>
-                <span v-else>Not updated yet</span>
+                <span v-if="lastUpdatedAt">{{ m.sensorsUi.updated }}: {{ lastUpdatedAt.toLocaleTimeString() }}</span>
+                <span v-else>{{ m.sensorsUi.notUpdated }}</span>
               </div>
             </div>
 
@@ -62,7 +62,7 @@
 
           <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-lg bg-gray-900/40 p-4 outline outline-1 outline-white/10">
-              <div class="text-xs uppercase tracking-wide text-gray-400">Distance</div>
+              <div class="text-xs uppercase tracking-wide text-gray-400">{{ m.sensorsUi.distance }}</div>
               <div class="mt-2 text-3xl font-bold">
                 <span v-if="latest">{{ formatValue(latest.value) }}</span>
                 <span v-else class="text-gray-500">—</span>
@@ -71,7 +71,7 @@
             </div>
 
             <div class="rounded-lg bg-gray-900/40 p-4 outline outline-1 outline-white/10">
-              <div class="text-xs uppercase tracking-wide text-gray-400">Sensor type</div>
+              <div class="text-xs uppercase tracking-wide text-gray-400">{{ m.sensorsUi.sensorType }}</div>
               <div class="mt-2 text-lg font-semibold">
                 <span v-if="latest">{{ latest.sensor_type }}</span>
                 <span v-else class="text-gray-500">—</span>
@@ -79,7 +79,7 @@
             </div>
 
             <div class="rounded-lg bg-gray-900/40 p-4 outline outline-1 outline-white/10">
-              <div class="text-xs uppercase tracking-wide text-gray-400">Timestamp</div>
+              <div class="text-xs uppercase tracking-wide text-gray-400">{{ m.sensorsUi.timestamp }}</div>
               <div class="mt-2 text-sm text-gray-200">
                 <span v-if="latest">{{ latest.timestamp || latest.created_at || '—' }}</span>
                 <span v-else class="text-gray-500">—</span>
@@ -146,14 +146,14 @@
               :disabled="!selectedDeviceId"
               @click="start"
             >
-              Start
+              {{ m.sensorsUi.start }}
             </button>
             <button
               type="button"
               class="rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-gray-200 outline outline-1 outline-white/10 hover:bg-white/10"
               @click="stop"
             >
-              Stop
+              {{ m.sensorsUi.stop }}
             </button>
             <button
               type="button"
@@ -161,10 +161,10 @@
               :disabled="loadingLatest || !selectedDeviceId"
               @click="refreshOnce"
             >
-              Refresh now
+              {{ m.sensorsUi.refreshNow }}
             </button>
 
-            <div class="ml-auto text-xs text-gray-400" v-if="loadingLatest">Loading…</div>
+            <div class="ml-auto text-xs text-gray-400" v-if="loadingLatest">{{ m.sensorsUi.loading }}</div>
           </div>
         </div>
       </div>
@@ -176,6 +176,9 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useSensorData } from '../composables/useSensorData'
 import api from '@/services/api'
+import { useI18n } from '@/i18n'
+
+const { m } = useI18n()
 
 const {
   devices,
@@ -268,7 +271,7 @@ onMounted(async () => {
   await loadActuatorStatus()
 })
 
-const pollingLabel = computed(() => (isPolling.value ? 'LIVE' : 'PAUSED'))
+const pollingLabel = computed(() => (isPolling.value ? m.value.sensorsUi.live : m.value.sensorsUi.paused))
 const pollingClass = computed(() =>
   isPolling.value ? 'text-green-300 bg-green-500/10 px-2 py-1 rounded-md outline outline-1 outline-green-500/20'
     : 'text-gray-300 bg-white/5 px-2 py-1 rounded-md outline outline-1 outline-white/10'

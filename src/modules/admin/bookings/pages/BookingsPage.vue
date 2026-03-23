@@ -2,8 +2,8 @@
   <div class="px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <PageHeading
-      title="Bookings"
-      description="Vehicle bookings management"
+      :title="m.adminBookingsUi.title"
+      :description="m.adminBookingsUi.description"
     >
       <template #actions>
         <button
@@ -41,7 +41,7 @@
       </div>
 
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        {{ pagination.total }} bookings
+        {{ pagination.total }} {{ m.adminBookingsUi.title.toLowerCase() }}
       </p>
     </div>
 
@@ -251,6 +251,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBookings } from '../composables/useBookings'
 import type { Booking, BookingFilters, BookingCreatePayload } from '../interfaces/booking.interface'
+import { useI18n } from '@/i18n'
 import AdminsTable from '@/modules/admin/components/AdminsTable.vue'
 import AdminTd from '@/modules/admin/components/AdminTd.vue'
 import AdminPagination from '@/modules/admin/components/AdminPagination.vue'
@@ -261,17 +262,18 @@ import FormField from '@/modules/admin/components/FormField.vue'
 import { useToast } from '@/modules/common/composables/useToast'
 
 const router = useRouter()
+const { m } = useI18n()
 const { bookings, loading, error, pagination, getBookings, deleteBooking, createBooking } = useBookings()
 
 const { success: toastSuccess, error: toastError } = useToast()
 
 const columns = [
-  { key: 'guest', label: 'Guest' },
-  { key: 'vehicle', label: 'Vehicle' },
-  { key: 'schedule', label: 'Schedule' },
-  { key: 'price', label: 'Price' },
-  { key: 'status', label: 'Status' },
-  { key: 'actions', label: 'Actions', srOnly: true },
+  { key: 'guest', label: m.value.adminBookingsUi.guest },
+  { key: 'vehicle', label: m.value.adminBookingsUi.vehicle },
+  { key: 'schedule', label: m.value.adminBookingsUi.schedule },
+  { key: 'price', label: m.value.adminBookingsUi.price },
+  { key: 'status', label: m.value.commonUi.status },
+  { key: 'actions', label: m.value.commonUi.actions, srOnly: true },
 ]
 
 const filters = ref<BookingFilters>({

@@ -28,7 +28,7 @@
           v-if="empty"
           class="py-10 text-center text-sm text-gray-500 dark:text-gray-400"
         >
-          <slot name="empty">No results.</slot>
+          <slot name="empty">{{ m.commonUi.noResults }}</slot>
         </div>
       </div>
     </div>
@@ -36,6 +36,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
+
+const { m } = useI18n()
+
 type Column = {
   key: string
   label: string

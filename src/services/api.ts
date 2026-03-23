@@ -23,6 +23,27 @@ const apiClient = axios.create({
   }
 })
 
+const getTenantFromHost = (): string | undefined => {
+  if (typeof window === 'undefined') return undefined
+  const host = window.location.hostname.toLowerCase()
+
+  const centralHosts = new Set(['localhost', '127.0.0.1', 'app.localhost'])
+  if (centralHosts.has(host)) return undefined
+
+  if (host.endsWith('.localhost')) {
+    const label = host.split('.')[0]
+    return label && label !== 'app' ? label : undefined
+  }
+
+  const parts = host.split('.')
+  if (parts.length >= 3) {
+    const subdomain = parts[0]
+    return subdomain && subdomain !== 'www' ? subdomain : undefined
+  }
+
+  return undefined
+}
+
 // Interceptor to add token and tenant to all requests
 apiClient.interceptors.request.use(
   (config) => {
@@ -36,8 +57,11 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${decodeURIComponent(token)}`
     }
 
-    // Get active tenant slug from cookie (or localStorage fallback) and add X-Tenant header.
-    // Respect explicit per-request X-Tenant (used by Super Admin cross-tenant views).
+    // Get active tenant slug and add X-Tenant header.
+    // Priority:
+    // 1) Explicit per-request X-Tenant (super-admin cross-tenant views)
+    // 2) Tenant inferred from host subdomain (preferred in multi-tenant domains)
+    // 3) Cookie/localStorage fallback
     let tenant = document.cookie
       .split('; ')
       .find((row) => row.startsWith('tenant='))
@@ -53,8 +77,11 @@ apiClient.interceptors.request.use(
       }
     }
 
-    if (tenant && !config.headers?.['X-Tenant']) {
-      config.headers['X-Tenant'] = decodeURIComponent(tenant as string)
+    const tenantFromHost = getTenantFromHost()
+    const resolvedTenant = tenantFromHost || tenant
+
+    if (resolvedTenant && !config.headers?.['X-Tenant']) {
+      config.headers['X-Tenant'] = decodeURIComponent(resolvedTenant as string)
     }
 
     return config

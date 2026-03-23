@@ -41,8 +41,22 @@ export function useVehicles() {
     loading.value = true
     error.value = null
     try {
-      const response = await api.post<{ data: Vehicle; message: string }>('/vehicles', data)
-      return response.data.data
+      const payload: Record<string, any> = {
+        ...data,
+      }
+
+      if (typeof data.latitude === 'number') {
+        payload.latitude = data.latitude
+        payload.lat = data.latitude
+      }
+
+      if (typeof data.longitude === 'number') {
+        payload.longitude = data.longitude
+        payload.lng = data.longitude
+      }
+
+      const response = await api.post<{ data?: Vehicle; message?: string }>('/vehicles', payload)
+      return (response.data?.data ?? response.data) as Vehicle
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Error creating vehicle'
       throw err
@@ -69,8 +83,22 @@ export function useVehicles() {
     loading.value = true
     error.value = null
     try {
-      const response = await api.put<{ data: Vehicle; message: string }>(`/vehicles/${id}`, data)
-      return response.data.data
+      const payload: Record<string, any> = {
+        ...data,
+      }
+
+      if (typeof data.latitude === 'number') {
+        payload.latitude = data.latitude
+        payload.lat = data.latitude
+      }
+
+      if (typeof data.longitude === 'number') {
+        payload.longitude = data.longitude
+        payload.lng = data.longitude
+      }
+
+      const response = await api.put<{ data?: Vehicle; message?: string }>(`/vehicles/${id}`, payload)
+      return (response.data?.data ?? response.data) as Vehicle
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Error updating vehicle'
       throw err

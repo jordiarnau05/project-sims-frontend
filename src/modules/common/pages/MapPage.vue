@@ -344,6 +344,7 @@ let userMarker: any = null
 const nearbyAvailable = ref<any[]>([])
 const selectedVehicle = ref<any | null>(null)
 const showSelectedPanel = ref(false)
+const hasInitialVehicleFocus = ref(false)
 
 // Reserves actives/pendents del vehicle seleccionat
 const selectedVehicleBookings = ref<any[]>([])
@@ -429,6 +430,33 @@ function computeNearbyAvailable() {
     .slice(0, 10)
 }
 
+function centerMapOnVehicles() {
+  if (!map.value || hasInitialVehicleFocus.value) return
+
+  const points = rawVehicles.value
+    .filter(v => v.latitude != null && v.longitude != null)
+    .map(v => [v.latitude, v.longitude] as [number, number])
+
+  if (points.length === 0) return
+
+  if (points.length === 1) {
+    map.value.setView(points[0], 14)
+  } else {
+    map.value.fitBounds(points, {
+      padding: [40, 40],
+      maxZoom: 14,
+    })
+  }
+
+  hasInitialVehicleFocus.value = true
+}
+
+async function loadVehiclesAndStartPolling() {
+  await fetchVehicles('/vehicles')
+  centerMapOnVehicles()
+  startPolling('/vehicles', 8000)
+}
+
 onMounted(() => {
   initMap()
   
@@ -461,11 +489,7 @@ onMounted(() => {
         const lat = pos.coords.latitude
         const lng = pos.coords.longitude
         setUserLocation(lat, lng)
-        if (map.value) {
-          map.value.setView([lat, lng], 15)
-        }
-        fetchVehicles('/vehicles').catch(err => console.error(err))
-        startPolling('/vehicles', 8000)
+        loadVehiclesAndStartPolling().catch(err => console.error(err))
         // try to grab userMarker via exposed internal function
         try { userMarker = _internal?.getUserMarker?.() ?? null } catch { userMarker = null }
         // compute nearby from user location
@@ -477,8 +501,7 @@ onMounted(() => {
         if (map.value) {
           map.value.setView([40.7095, 0.5795], 13)
         }
-        fetchVehicles('/vehicles').catch(err => console.error(err))
-        startPolling('/vehicles', 8000)
+        loadVehiclesAndStartPolling().catch(err => console.error(err))
         setTimeout(() => computeNearbyAvailable(), 600)
       },
       { enableHighAccuracy: true }
@@ -488,8 +511,7 @@ onMounted(() => {
     if (map.value) {
       map.value.setView([40.7095, 0.5795], 13)
     }
-    fetchVehicles('/vehicles').catch(err => console.error(err))
-    startPolling('/vehicles', 8000)
+    loadVehiclesAndStartPolling().catch(err => console.error(err))
     setTimeout(() => computeNearbyAvailable(), 600)
   }
 

@@ -7,13 +7,13 @@
     <!-- Info -->
     <div class="hidden sm:block">
       <p class="text-sm text-gray-700 dark:text-gray-300">
-        Showing
+        {{ m.commonUi.showing }}
         <span class="font-medium">{{ from }}</span>
-        to
+        {{ m.commonUi.to }}
         <span class="font-medium">{{ to }}</span>
-        of
+        {{ m.commonUi.of }}
         <span class="font-medium">{{ total }}</span>
-        results
+        {{ m.commonUi.results }}
       </p>
     </div>
 
@@ -28,7 +28,7 @@
         :disabled="page <= 1"
         @click="emit('update:page', page - 1)"
       >
-        Previous
+        {{ m.commonUi.previous }}
       </button>
 
       <button
@@ -40,7 +40,7 @@
         :disabled="page >= totalPages"
         @click="emit('update:page', page + 1)"
       >
-        Next
+        {{ m.commonUi.next }}
       </button>
     </div>
   </nav>
@@ -48,6 +48,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from '@/i18n'
+
+const { m } = useI18n()
 
 const props = defineProps<{
   page: number
