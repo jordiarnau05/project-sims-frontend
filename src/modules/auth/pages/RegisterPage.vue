@@ -8,6 +8,24 @@
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" @submit.prevent="handleSubmit">
         <div>
+          <label for="tenantSlug" class="block text-sm/6 font-medium text-gray-100">Organization</label>
+          <div class="mt-2 text-xs text-gray-400 mb-1">
+            Tip: you can use "SIMS Corp" and it will normalize to "sims-corp".
+          </div>
+          <div class="mt-2">
+            <input
+              id="tenantSlug"
+              v-model="tenantSlug"
+              type="text"
+              required
+              :disabled="isLoading"
+              placeholder="e.g. sims-corp"
+              class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+            />
+          </div>
+        </div>
+
+        <div>
           <label for="name" class="block text-sm/6 font-medium text-gray-100">Full Name</label>
           <div class="mt-2">
             <input
@@ -16,6 +34,7 @@
               type="text"
               required
               :disabled="isLoading"
+              placeholder="e.g. John Doe"
               class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
             />
           </div>
@@ -30,6 +49,7 @@
               type="text"
               required
               :disabled="isLoading"
+              placeholder="e.g. johndoe"
               class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
             />
           </div>
@@ -45,6 +65,7 @@
               autocomplete="email"
               required
               :disabled="isLoading"
+              placeholder="e.g. john@example.com"
               class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
             />
           </div>
@@ -94,6 +115,7 @@ import { useAuth } from '../composables/useAuth'
 const router = useRouter()
 const { register, isLoading, error } = useAuth()
 
+const tenantSlug = ref('')
 const name = ref('')
 const username = ref('')
 const email = ref('')
@@ -101,6 +123,7 @@ const password = ref('')
 
 const handleSubmit = async () => {
   await register(
+    tenantSlug.value,
     name.value,
     username.value,
     email.value,
