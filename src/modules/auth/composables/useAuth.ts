@@ -281,6 +281,11 @@ export function useAuth() {
         {
           exchange_token: exchangeToken,
         },
+        {
+          headers: {
+            "X-Tenant": normalizedTenant,
+          },
+        },
       );
 
       const token = response.data.token;
