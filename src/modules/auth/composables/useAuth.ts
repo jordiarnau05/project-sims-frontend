@@ -12,42 +12,25 @@ import type {
 } from "../interfaces/auth.interface";
 import showToast from "@/modules/common/composables/useToast";
 
-<<<<<<< HEAD
 const TOKEN_COOKIE_NAME = "token";
 const TENANT_COOKIE_NAME = "tenant";
-=======
-const TOKEN_COOKIE_NAME  = 'token'
-const TENANT_COOKIE_NAME = 'tenant'
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
 
 // Helper functions to manage cookies
 function getCookie(name: string): string | null {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) {
-<<<<<<< HEAD
     const raw = parts.pop()?.split(";").shift() || null;
     return raw ? decodeURIComponent(raw) : null;
-=======
-    const raw = parts.pop()?.split(';').shift() || null
-    return raw ? decodeURIComponent(raw) : null
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
   }
   return null;
 }
 
 function setCookie(name: string, value: string, days: number = 7): void {
-<<<<<<< HEAD
   const date = new Date();
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
   const expires = `expires=${date.toUTCString()}`;
   document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
-=======
-  const date = new Date()
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
-  const expires = `expires=${date.toUTCString()}`
-  document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
 }
 
 // Deletes cookie by setting its expiration date in the past
@@ -164,7 +147,6 @@ export function useAuth() {
     }
   };
 
-<<<<<<< HEAD
   const login = async (
     tenantSlug: string,
     email: string,
@@ -212,16 +194,6 @@ export function useAuth() {
     }
 
     // Tenant-domain login flow (same-domain session)
-    setCookie(TENANT_COOKIE_NAME, normalizedTenant);
-=======
-  const login = async (tenantSlug: string, email: string, password: string): Promise<boolean> => {
-    isLoading.value = true
-    error.value = null
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
-
-    // Persist tenant slug before the request so axios sends X-Tenant from the start
-    setCookie(TENANT_COOKIE_NAME, tenantSlug.toLowerCase())
-
     try {
       const loginData: LoginRequest = { email, password };
       const response = await apiClient.post<LoginResponse>(
@@ -237,7 +209,6 @@ export function useAuth() {
       const token = response.data.token;
 
       if (token) {
-<<<<<<< HEAD
         setCookie(TOKEN_COOKIE_NAME, token);
         // Ensure the immediate follow-up /user request uses the fresh token.
         apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -262,27 +233,11 @@ export function useAuth() {
           deleteCookie(TENANT_COOKIE_NAME);
         }
         return userFetched;
-=======
-        setCookie(TOKEN_COOKIE_NAME, token)
-        // Ensure the immediate follow-up /user request uses the fresh token.
-        apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
-        // Fetch user data after successful login
-        const userFetched = await fetchUser()
-        // Update tenant cookie from actual user data (source of truth)
-        if (userFetched && user.value?.tenant_id) {
-          setCookie(TENANT_COOKIE_NAME, user.value.tenant_id)
-        } else if (!userFetched) {
-          // Login failed after token – remove tenant cookie
-          deleteCookie(TENANT_COOKIE_NAME)
-        }
-        return userFetched
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
       } else {
         error.value = "No token received from server";
         return false;
       }
     } catch (err: any) {
-<<<<<<< HEAD
       // In some deployments the app is hosted on a central domain (no tenant subdomains)
       // and the backend expects central login. If tenant login fails due to tenancy,
       // automatically retry central login for a smoother UX.
@@ -302,12 +257,6 @@ export function useAuth() {
       error.value = formatApiError(err, "Error logging in");
       deleteCookie(TENANT_COOKIE_NAME);
       return false;
-=======
-      const msg = err.response?.data?.message || 'Error logging in'
-      error.value = msg
-      deleteCookie(TENANT_COOKIE_NAME)
-      return false
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
     } finally {
       isLoading.value = false;
     }
@@ -380,15 +329,9 @@ export function useAuth() {
       // Call backend to revoke token
       await apiClient.post("/logout");
       // Clear local state
-<<<<<<< HEAD
       deleteCookie(TOKEN_COOKIE_NAME);
       deleteCookie(TENANT_COOKIE_NAME);
       user.value = null;
-=======
-      deleteCookie(TOKEN_COOKIE_NAME)
-      deleteCookie(TENANT_COOKIE_NAME)
-      user.value = null
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Error during logout";
       showToast(errorMsg);

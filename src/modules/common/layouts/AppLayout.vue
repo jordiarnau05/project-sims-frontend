@@ -251,7 +251,7 @@ const navigation = computed(() => [
   { name: m.value.nav.map, to: "/vehicles-map", icon: MapIcon },
   { name: m.value.nav.bookings, to: "/bookings", icon: CalendarDaysIcon },
   { name: m.value.nav.tickets, to: "/tickets", icon: TicketIcon },
-  { name: "Sensors", to: "/sensors", icon: WifiIcon },
+  { name: m.value.nav.sensors, to: "/sensors", icon: WifiIcon },
   { name: m.value.nav.profile, to: "/perfil", icon: UserIcon },
 ]);
 

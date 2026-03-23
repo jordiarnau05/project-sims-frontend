@@ -4,7 +4,7 @@ type Locale = 'ca' | 'es' | 'en'
 
 const messages = {
   ca: {
-    nav: { map: 'Mapa', bookings: 'Reserves', tickets: 'Tiquets', favorites: 'Favorits', profile: 'Perfil' },
+    nav: { map: 'Mapa', bookings: 'Reserves', tickets: 'Tiquets', favorites: 'Favorits', profile: 'Perfil', sensors: 'Sensors' },
     mapUi: {
       legend: 'Llegenda',
       nearby: 'Propers',
@@ -59,6 +59,7 @@ const messages = {
       estimatedPrice: 'Preu estimat',
       cancellationFee: 'Taxa cancel·lació',
       totalPrice: 'Preu total',
+      realEnd: 'Fi real',
       pendingPriceMsg: 'Es calcularà al finalitzar',
       cancelThisBooking: 'Cancel·lar aquesta reserva',
       fetchError: 'Error carregant les reserves. Refresca la pàgina.',
@@ -133,7 +134,6 @@ const messages = {
       profileUpdated: 'Perfil actualitzat correctament', profileError: 'Error actualitzant el perfil',
       passwordUpdated: 'Contrasenya actualitzada correctament', passwordError: 'Error actualitzant la contrasenya',
     },
-<<<<<<< HEAD
     commonUi: {
       showing: 'Mostrant',
       to: 'a',
@@ -272,13 +272,11 @@ const messages = {
       description: 'No hem pogut trobar la pàgina que busques.',
       backHome: 'Tornar a inici',
     },
-=======
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
     adminNav: { dashboard: 'Tauler', map: 'Mapa', users: 'Usuaris', roles: 'Rols', bookings: 'Reserves', vehicles: 'Vehicles', tenants: 'Empreses', superAdmin: 'Vista global', tenantWorkspace: 'Espai tenant', tickets: 'Tiquets' },
     admin: { notAuthorizedTitle: 'No autoritzat', notAuthorizedMsg: "El teu compte no té permís per accedir a l'àrea d'administració." },
   },
   es: {
-    nav: { map: 'Mapa', bookings: 'Reservas', tickets: 'Tickets', favorites: 'Favoritos', profile: 'Perfil' },
+    nav: { map: 'Mapa', bookings: 'Reservas', tickets: 'Tickets', favorites: 'Favoritos', profile: 'Perfil', sensors: 'Sensores' },
     mapUi: {
       legend: 'Leyenda',
       nearby: 'Cercanos',
@@ -333,6 +331,7 @@ const messages = {
       estimatedPrice: 'Precio estimado',
       cancellationFee: 'Tasa cancelación',
       totalPrice: 'Precio total',
+      realEnd: 'Fin real',
       pendingPriceMsg: 'Se calculará al finalizar',
       cancelThisBooking: 'Cancelar esta reserva',
       fetchError: 'Error cargando las reservas. Recarga la página.',
@@ -381,7 +380,7 @@ const messages = {
       openNewTicketSubtitle: 'Describe tu incidencia y nuestro equipo te responderá.',
       title: 'Título',
       description: 'Descripción',
-      titlePlaceholder: 'Resumen breve de tu incidencia',
+      titlePlaceholder: 'Resum breve de tu incidencia',
       descriptionPlaceholder: 'Describe la incidencia en detalle…',
       cancel: 'Cancelar',
       creating: 'Creando…',
@@ -407,7 +406,6 @@ const messages = {
       profileUpdated: 'Perfil actualizado correctamente', profileError: 'Error al actualizar el perfil',
       passwordUpdated: 'Contraseña actualizada correctamente', passwordError: 'Error al actualizar la contraseña',
     },
-<<<<<<< HEAD
     commonUi: {
       showing: 'Mostrando',
       to: 'a',
@@ -546,13 +544,11 @@ const messages = {
       description: 'No hemos podido encontrar la página que buscas.',
       backHome: 'Volver al inicio',
     },
-=======
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
     adminNav: { dashboard: 'Panel', map: 'Mapa', users: 'Usuarios', roles: 'Roles', bookings: 'Reservas', vehicles: 'Vehículos', tenants: 'Empresas', superAdmin: 'Vista global', tenantWorkspace: 'Espacio tenant', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'No autorizado', notAuthorizedMsg: 'Tu cuenta no tiene permiso para acceder al área de administración.' },
   },
   en: {
-    nav: { map: 'Map', bookings: 'Bookings', tickets: 'Tickets', favorites: 'Favorites', profile: 'Profile' },
+    nav: { map: 'Map', bookings: 'Bookings', tickets: 'Tickets', favorites: 'Favorites', profile: 'Profile', sensors: 'Sensors' },
     mapUi: {
       legend: 'Legend',
       nearby: 'Nearby',
@@ -607,6 +603,7 @@ const messages = {
       estimatedPrice: 'Estimated price',
       cancellationFee: 'Cancellation fee',
       totalPrice: 'Total price',
+      realEnd: 'Actual end',
       pendingPriceMsg: 'Calculated when completed',
       cancelThisBooking: 'Cancel this booking',
       fetchError: 'Error loading bookings. Refresh the page.',
@@ -681,7 +678,6 @@ const messages = {
       profileUpdated: 'Profile updated successfully', profileError: 'Error updating profile',
       passwordUpdated: 'Password updated successfully', passwordError: 'Error updating password',
     },
-<<<<<<< HEAD
     commonUi: {
       showing: 'Showing',
       to: 'to',
@@ -820,8 +816,6 @@ const messages = {
       description: 'Sorry, we couldn’t find the page you’re looking for.',
       backHome: 'Go back home',
     },
-=======
->>>>>>> 765405c (feat: add super admin functionality and tenant management)
     adminNav: { dashboard: 'Dashboard', map: 'Map', users: 'Users', roles: 'Roles', bookings: 'Bookings', vehicles: 'Vehicles', tenants: 'Tenants', superAdmin: 'Global view', tenantWorkspace: 'Tenant workspace', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'Not authorized', notAuthorizedMsg: 'Your account does not have permission to access the admin area.' },
   },

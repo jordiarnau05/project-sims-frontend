@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
-import { useAuth } from '../composables/useAuth'
+import { useAuth } from '@/modules/auth/composables/useAuth'
 
 const router = useRouter()
 const { register, isLoading, error } = useAuth()
