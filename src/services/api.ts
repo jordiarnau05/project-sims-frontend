@@ -49,6 +49,7 @@ const getTenantFromHost = (): string | undefined => {
 
   return undefined
 }
+
 // Interceptor to add token and tenant to all requests
 apiClient.interceptors.request.use(
   (config) => {
