@@ -195,7 +195,6 @@ export function useAuth() {
 
     // Tenant-domain login flow (same-domain session)
     try {
-<<<<<<< HEAD
       const loginData: LoginRequest = { email, password };
       const response = await apiClient.post<LoginResponse>(
         "/login",
@@ -208,14 +207,6 @@ export function useAuth() {
       );
 
       const token = response.data.token;
-=======
-      const loginData: LoginRequest = { email, password }
-      const response = await apiClient.post<LoginResponse>('/login', loginData, {
-        headers: {
-          'X-Tenant': normalizedTenant,
-        },
-      })
->>>>>>> 74ac620 (fix(auth): send X-Tenant header on login)
 
       if (token) {
         setCookie(TOKEN_COOKIE_NAME, token);
