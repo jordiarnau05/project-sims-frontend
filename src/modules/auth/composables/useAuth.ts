@@ -38,6 +38,8 @@ const user = ref<User | null>(null)
 const isAuthenticated = computed(() => !!user.value)
 
 const normalizeTenantSlug = (input: string): string => {
+  // Accept user-friendly org names and normalize to a slug expected by the API.
+  // Examples: "SIMS Corp" -> "sims-corp", "ecomove" -> "ecomove".
   return String(input || '')
     .trim()
     .toLowerCase()
@@ -61,7 +63,6 @@ const looksLikeTenancyHeaderError = (err: any): boolean => {
   if (status === 500 && (msg.includes('tenant') || msg.includes('tenancy'))) return true
   return false
 }
-
 export function useAuth() {
   const router = useRouter()
 
@@ -129,7 +130,6 @@ export function useAuth() {
       isLoading.value = false
       return false
     }
-
     const tryCentralLogin = async (): Promise<boolean> => {
       const response = await apiClient.post<CentralLoginResponse>('/central/login', {
         organization: normalizedTenant,
@@ -173,6 +173,8 @@ export function useAuth() {
         apiClient.defaults.headers.common.Authorization = `Bearer ${token}`
         // Fetch user data after successful login
         const userFetched = await fetchUser()
+        // Keep tenant cookie as a valid slug (X-Tenant). Some backends return tenant_id
+        // as a numeric/uuid; only accept it if it looks like a slug.
         if (userFetched) {
           const tenantFromUser = typeof (user.value as any)?.tenant_id === 'string'
             ? normalizeTenantSlug((user.value as any).tenant_id)
