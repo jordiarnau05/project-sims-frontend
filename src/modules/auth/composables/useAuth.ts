@@ -63,6 +63,10 @@ const looksLikeTenancyHeaderError = (err: any): boolean => {
   if (status === 500 && (msg.includes('tenant') || msg.includes('tenancy'))) return true
   return false
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 01f77ab (feat(auth): enhance error handling and central login logic)
 export function useAuth() {
   const router = useRouter()
 
@@ -70,6 +74,10 @@ export function useAuth() {
     if (typeof window === 'undefined') return false
     const host = window.location.hostname.toLowerCase()
 
+<<<<<<< HEAD
+=======
+    // Allow forcing central mode via env (useful in production deployments)
+>>>>>>> 01f77ab (feat(auth): enhance error handling and central login logic)
     const forced = String((import.meta as any)?.env?.VITE_FORCE_CENTRAL_LOGIN || '').toLowerCase()
     if (['true', '1', 'yes'].includes(forced)) return true
 
@@ -79,8 +87,17 @@ export function useAuth() {
       .filter(Boolean)
     if (configuredCentralHosts.includes(host)) return true
 
+<<<<<<< HEAD
     if (host === 'localhost' || host === '127.0.0.1' || host === 'app.localhost') return true
 
+=======
+    // Local dev central host(s)
+    if (host === 'localhost' || host === '127.0.0.1' || host === 'app.localhost') return true
+
+    // Heuristic: treat the base deployment domain as central.
+    // Example central: grup1-sims-c7271.ondigitalocean.app
+    // Example tenant:  sims-corp.grup1-sims-c7271.ondigitalocean.app
+>>>>>>> 01f77ab (feat(auth): enhance error handling and central login logic)
     if (host.endsWith('.ondigitalocean.app')) {
       const parts = host.split('.')
       if (parts.length === 3) return true
@@ -191,6 +208,9 @@ export function useAuth() {
         return false
       }
     } catch (err: any) {
+      // In some deployments the app is hosted on a central domain (no tenant subdomains)
+      // and the backend expects central login. If tenant login fails due to tenancy,
+      // automatically retry central login for a smoother UX.
       const status = err?.response?.status
       if (looksLikeTenancyHeaderError(err) || status === 500) {
         try {
