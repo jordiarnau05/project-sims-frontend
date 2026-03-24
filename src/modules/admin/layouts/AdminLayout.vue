@@ -180,7 +180,6 @@ const navigationItems = [
 
 const sidebarOpen = ref(false)
 const { user, isLoading, logout } = useAuth()
-const isAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase().includes('admin'))))
 const isSuperAdmin = computed(() => !!(user.value && user.value.roles && user.value.roles.some((r: any) => (r.name || '').toLowerCase().includes('superadmin'))))
 
 const navigation = computed(() =>
