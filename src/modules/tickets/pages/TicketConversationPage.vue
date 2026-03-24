@@ -49,40 +49,40 @@
         </p>
 
         <div
-          v-for="m in messages"
-          :key="m.id"
+          v-for="msg in messages"
+          :key="msg.id"
           :class="[
             'flex gap-2',
-            m.user_id === currentUserId ? 'flex-row-reverse' : 'flex-row',
+            msg.user_id === currentUserId ? 'flex-row-reverse' : 'flex-row',
           ]"
         >
           <!-- Avatar initials -->
           <div
             :class="[
               'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white select-none',
-              m.user_id === currentUserId ? 'bg-indigo-600' : 'bg-gray-600',
+              msg.user_id === currentUserId ? 'bg-indigo-600' : 'bg-gray-600',
             ]"
           >
-            {{ initials(m.user?.name) }}
+            {{ initials(msg.user?.name) }}
           </div>
-
+ 
           <!-- Bubble -->
-          <div :class="m.user_id === currentUserId ? 'items-end' : 'items-start'" class="flex flex-col max-w-[75%]">
-            <div class="flex items-baseline gap-2 mb-1" :class="m.user_id === currentUserId ? 'flex-row-reverse' : 'flex-row'">
-              <span class="text-xs font-semibold" :class="m.user_id === currentUserId ? 'text-indigo-400' : 'text-gray-300'">
-                {{ m.user?.name || i18nM.ticketsUi.unknown }}
+          <div :class="msg.user_id === currentUserId ? 'items-end' : 'items-start'" class="flex flex-col max-w-[75%]">
+            <div class="flex items-baseline gap-2 mb-1" :class="msg.user_id === currentUserId ? 'flex-row-reverse' : 'flex-row'">
+              <span class="text-xs font-semibold" :class="msg.user_id === currentUserId ? 'text-indigo-400' : 'text-gray-300'">
+                {{ msg.user?.name || m.ticketsUi.unknown }}
               </span>
-              <span class="text-xs text-gray-500">{{ formatDate(m.created_at) }}</span>
+              <span class="text-xs text-gray-500">{{ formatDate(msg.created_at) }}</span>
             </div>
             <div
               :class="[
                 'px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap break-words shadow-sm',
-                m.user_id === currentUserId
+                msg.user_id === currentUserId
                   ? 'bg-indigo-600 text-white rounded-tr-sm'
                   : 'bg-gray-800 text-gray-100 rounded-tl-sm',
               ]"
             >
-              {{ m.message }}
+              {{ msg.message }}
             </div>
           </div>
         </div>
@@ -93,11 +93,11 @@
         v-if="ticket.active"
         class="bg-white dark:bg-gray-900 shadow rounded-lg px-4 py-4"
       >
-        <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">{{ i18nM.ticketsUi.reply }}</h3>
+        <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">{{ m.ticketsUi.reply }}</h3>
         <textarea
           v-model="replyText"
           rows="4"
-          :placeholder="i18nM.ticketsUi.replyPlaceholder"
+          :placeholder="m.ticketsUi.replyPlaceholder"
           class="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-700"
         />
         <div class="mt-3 flex justify-end">
@@ -109,13 +109,13 @@
             <svg v-if="sending" class="animate-spin h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {{ sending ? i18nM.ticketsUi.sending : i18nM.ticketsUi.send }}
+            {{ sending ? m.ticketsUi.sending : m.ticketsUi.send }}
           </button>
         </div>
       </div>
 
       <p v-else class="text-center text-sm text-gray-500 py-4">
-        {{ i18nM.ticketsUi.ticketClosedInfo }}
+        {{ m.ticketsUi.ticketClosedInfo }}
       </p>
 
     </template>
@@ -135,7 +135,7 @@ const route = useRoute()
 const toast = useToast()
 const { user: authUser } = useAuth()
 const { ticket, loading, getTicket, sendMessage } = useTickets()
-const { m: i18nM, locale } = useI18n()
+const { m, locale } = useI18n()
 
 const currentUserId = computed(() => authUser.value?.id ?? null)
 const initials = (name?: string) =>
@@ -157,7 +157,7 @@ const load = async () => {
     const data = await getTicket(id)
     messages.value = data.messages ?? []
   } catch {
-    toast.error(i18nM.value.ticketsUi.loadTicketError)
+    toast.error(m.value.ticketsUi.loadTicketError)
   }
 }
 
@@ -169,7 +169,7 @@ const handleReply = async () => {
     messages.value.push(msg)
     replyText.value = ''
   } catch (err: any) {
-    const detail = err?.response?.data?.message || i18nM.value.ticketsUi.sendMessageError
+    const detail = err?.response?.data?.message || m.value.ticketsUi.sendMessageError
     toast.error(detail)
   } finally {
     sending.value = false
