@@ -35,6 +35,11 @@ const getTenantFromHost = (): string | undefined => {
     return label && label !== 'app' ? label : undefined
   }
 
+  // Handle Digital Ocean dynamic domains (they are central hosts, not subdomains for tenants)
+  if (host.endsWith('.ondigitalocean.app')) {
+    return undefined
+  }
+
   const parts = host.split('.')
   if (parts.length >= 3) {
     const subdomain = parts[0]
