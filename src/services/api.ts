@@ -35,8 +35,9 @@ const getTenantFromHost = (): string | undefined => {
     return label && label !== 'app' ? label : undefined
   }
 
-  // Handle Digital Ocean dynamic domains (they are central hosts, not subdomains for tenants)
-  if (host.endsWith('.ondigitalocean.app')) {
+  // Handle central production domains (they are central hosts, not subdomains for tenants)
+  const centralProductionHosts = new Set(['grup1-sims.com', 'www.grup1-sims.com'])
+  if (host.endsWith('.ondigitalocean.app') || centralProductionHosts.has(host)) {
     return undefined
   }
 
