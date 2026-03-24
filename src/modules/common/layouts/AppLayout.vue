@@ -102,9 +102,47 @@
             </Menu>
           </div>
 
-          <!-- Mobile: language switcher -->
-          <div class="-mr-2 flex items-center sm:hidden">
+          <!-- Mobile: top actions -->
+          <div class="-mr-2 flex items-center gap-2 sm:hidden">
             <LanguageSwitcher />
+            
+            <!-- Mobile User Menu -->
+            <Menu as="div" class="relative">
+              <MenuButton class="relative flex max-w-xs items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                <span class="size-8 rounded-full outline -outline-offset-1 outline-white/10 bg-indigo-700 flex items-center justify-center text-xs font-bold text-white">
+                  {{ userInitials }}
+                </span>
+              </MenuButton>
+
+              <transition
+                enter-active-class="transition ease-out duration-200"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="transform scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <MenuItems class="absolute right-0 z-40 mt-2 w-48 origin-top-right rounded-md bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 outline -outline-offset-1 outline-white/10">
+                  <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
+                    <button
+                      v-if="item.type === 'logout'"
+                      type="button"
+                      @click="handleLogout"
+                      :class="[active ? 'bg-white/5 outline-none' : '', 'block w-full text-left px-4 py-2 text-sm text-gray-300']"
+                    >
+                      {{ item.name }}
+                    </button>
+                    <RouterLink
+                      v-else
+                      :to="item.to"
+                      :class="[active ? 'bg-white/5 outline-none' : '', 'block px-4 py-2 text-sm text-gray-300']"
+                    >
+                      {{ item.name }}
+                    </RouterLink>
+                  </MenuItem>
+                </MenuItems>
+              </transition>
+            </Menu>
           </div>
         </div>
       </div>

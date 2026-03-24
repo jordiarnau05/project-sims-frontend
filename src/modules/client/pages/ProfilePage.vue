@@ -132,6 +132,20 @@
             </div>
           </form>
         </section>
+        
+        <!-- Danger Zone / Logout for mobile -->
+        <section class="mt-12 pt-8 border-t border-white/10 text-center">
+          <button
+            type="button"
+            @click="handleLogout"
+            class="w-full flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-4 text-sm font-semibold text-red-400 hover:bg-red-500/20 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+            </svg>
+            {{ m.userMenu.signOut }}
+          </button>
+        </section>
 
       </template>
     </div>
@@ -140,13 +154,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
 import { useAuth } from '@/modules/auth/composables/useAuth'
 import { useUsers } from '@/modules/admin/modules/users/composables/useUsers'
 import { useToast } from '@/modules/common/composables/useToast'
 
 const { m } = useI18n()
-const { user, fetchUser } = useAuth()
+const router = useRouter()
+const { user, fetchUser, logout } = useAuth()
 const { updateUser } = useUsers()
 const toast = useToast()
 
@@ -160,6 +176,17 @@ const passwordForm = reactive({ password: '', password_confirmation: '' })
 const initials = computed(() => {
   return (user.value?.name || '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?'
 })
+
+const handleLogout = async () => {
+  try {
+    await logout()
+    toast.success(m.value.userMenu.loggedOut)
+  } catch {
+    //
+  } finally {
+    router.push('/login')
+  }
+}
 
 const passwordMismatch = computed(() =>
   !!passwordForm.password_confirmation && passwordForm.password !== passwordForm.password_confirmation
