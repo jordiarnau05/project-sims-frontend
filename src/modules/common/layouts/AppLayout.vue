@@ -266,7 +266,7 @@ const handleLogout = async () => {
     await logout();
     showToast(m.value.userMenu.loggedOut);
   } catch (_) {
-    // El propio useAuth ja mostra l'error si falla
+    // El propi useAuth ja mostra l'error si falla
   } finally {
     router.push("/login");
   }
