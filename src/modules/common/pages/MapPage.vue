@@ -440,7 +440,9 @@ function centerMapOnVehicles() {
   if (points.length === 0) return
 
   if (points.length === 1) {
-    map.value.setView(points[0], 14)
+    if (points[0]) {
+      map.value.setView(points[0], 14)
+    }
   } else {
     map.value.fitBounds(points, {
       padding: [40, 40],
