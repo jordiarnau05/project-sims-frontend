@@ -140,7 +140,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '@/modules/auth/composables/useAuth'
+import { useAuth } from '../composables/useAuth'
 import { useI18n } from '@/i18n'
 import showToast from '@/modules/common/composables/useToast'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'

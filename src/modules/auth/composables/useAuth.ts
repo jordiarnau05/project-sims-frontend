@@ -348,32 +348,26 @@ export function useAuth() {
   ) => {
     isLoading.value = true;
     error.value = null;
-
-    const normalizedTenant = normalizeTenantSlug(tenantSlug);
-    if (!normalizedTenant) {
-      error.value = "Organization is required to register";
-      isLoading.value = false;
-      return false;
-    }
-
     try {
+      const normalizedTenant = normalizeTenantSlug(tenantSlug);
       const registerData: RegisterRequest = {
         name,
         username,
         email,
         password,
-        role_id: 2,
+        role_id: 2, // Client role ID is always 2
       };
-      const response = await apiClient.post<RegisterResponse>("/users", registerData, {
-        headers: {
-          "X-Tenant": normalizedTenant,
-        },
-      });
-      if (response.data) router.push("/login");
-      return true;
+      if (
+        await apiClient.post<RegisterResponse>("/users", registerData, {
+          headers: {
+            "X-Tenant": normalizedTenant,
+          },
+        })
+      )
+        router.push("/login");
     } catch (err: any) {
-      error.value = formatApiError(err, "Error registering");
-      return false;
+      const msg = err.response?.data?.message || "Error registering";
+      showToast(msg);
     } finally {
       isLoading.value = false;
     }

@@ -49,7 +49,6 @@ const getTenantFromHost = (): string | undefined => {
 
   return undefined
 }
-
 // Interceptor to add token and tenant to all requests
 apiClient.interceptors.request.use(
   (config) => {
@@ -84,7 +83,7 @@ apiClient.interceptors.request.use(
     }
 
     const tenantFromHost = getTenantFromHost()
-    const resolvedTenant = tenantFromHost || tenant
+    let resolvedTenant = tenantFromHost || tenant
 
     if (resolvedTenant && !config.headers?.['X-Tenant']) {
       config.headers['X-Tenant'] = decodeURIComponent(resolvedTenant as string)
