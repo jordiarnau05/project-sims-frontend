@@ -104,6 +104,8 @@ export function useAuth() {
       return true;
 
     // Heuristic: treat the base deployment domain as central.
+    // Example central: grup1-sims-c7271.ondigitalocean.app
+    // Example tenant:  sims-corp.grup1-sims-c7271.ondigitalocean.app
     if (host.endsWith(".ondigitalocean.app")) {
       const parts = host.split(".");
       if (parts.length === 3) return true;
@@ -171,12 +173,10 @@ export function useAuth() {
           password,
         },
       );
-
-      const tenantRef = response.data.tenant_id || normalizedTenant;
       redirectToTenantDomain(
         response.data.tenant_host,
         response.data.exchange_token,
-        tenantRef,
+        response.data.tenant_id,
       );
       return false;
     };
@@ -194,6 +194,8 @@ export function useAuth() {
     }
 
     // Tenant-domain login flow (same-domain session)
+    setCookie(TENANT_COOKIE_NAME, normalizedTenant);
+
     try {
       const loginData: LoginRequest = { email, password };
       const response = await apiClient.post<LoginResponse>(
@@ -348,26 +350,32 @@ export function useAuth() {
   ) => {
     isLoading.value = true;
     error.value = null;
+
+    const normalizedTenant = normalizeTenantSlug(tenantSlug);
+    if (!normalizedTenant) {
+      error.value = "Organization is required to register";
+      isLoading.value = false;
+      return false;
+    }
+
     try {
-      const normalizedTenant = normalizeTenantSlug(tenantSlug);
       const registerData: RegisterRequest = {
         name,
         username,
         email,
         password,
-        role_id: 2, // Client role ID is always 2
+        role_id: 2,
       };
-      if (
-        await apiClient.post<RegisterResponse>("/users", registerData, {
-          headers: {
-            "X-Tenant": normalizedTenant,
-          },
-        })
-      )
-        router.push("/login");
+      const response = await apiClient.post<RegisterResponse>("/users", registerData, {
+        headers: {
+          "X-Tenant": normalizedTenant,
+        },
+      });
+      if (response.data) router.push("/login");
+      return true;
     } catch (err: any) {
-      const msg = err.response?.data?.message || "Error registering";
-      showToast(msg);
+      error.value = formatApiError(err, "Error registering");
+      return false;
     } finally {
       isLoading.value = false;
     }

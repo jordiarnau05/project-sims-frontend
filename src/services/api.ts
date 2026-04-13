@@ -84,7 +84,7 @@ apiClient.interceptors.request.use(
     }
 
     const tenantFromHost = getTenantFromHost()
-    let resolvedTenant = tenantFromHost || tenant
+    const resolvedTenant = tenantFromHost || tenant
 
     if (resolvedTenant && !config.headers?.['X-Tenant']) {
       config.headers['X-Tenant'] = decodeURIComponent(resolvedTenant as string)

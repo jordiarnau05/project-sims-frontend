@@ -91,54 +91,6 @@
             Polling: <span class="text-gray-300">/api/sensor-data/devices/{{ selectedDeviceId }}/latest</span>
           </div>
 
-          <div class="mt-6 rounded-lg bg-gray-900/40 p-4 outline outline-1 outline-white/10">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <div class="text-sm font-semibold">Actuator (LED)</div>
-                <div class="mt-1 text-xs text-gray-400">
-                  Current state:
-                  <span class="font-semibold" :class="actuatorState === 'ON' ? 'text-green-300' : 'text-gray-300'">
-                    {{ actuatorState || 'UNKNOWN' }}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                class="rounded-lg bg-white/5 px-3 py-2 text-xs text-gray-200 outline outline-1 outline-white/10 hover:bg-white/10 disabled:opacity-50"
-                :disabled="loadingActuator"
-                @click="loadActuatorStatus"
-              >
-                Refresh status
-              </button>
-            </div>
-
-            <div v-if="actuatorError" class="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200 outline outline-1 outline-red-500/20">
-              {{ actuatorError }}
-            </div>
-
-            <div class="mt-4 flex items-center gap-2">
-              <button
-                type="button"
-                class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-50"
-                :disabled="loadingActuator || actuatorState === 'ON'"
-                @click="setActuator('ON')"
-              >
-                Turn ON
-              </button>
-              <button
-                type="button"
-                class="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-500 disabled:opacity-50"
-                :disabled="loadingActuator || actuatorState === 'OFF'"
-                @click="setActuator('OFF')"
-              >
-                Turn OFF
-              </button>
-
-              <div class="ml-auto text-xs text-gray-400" v-if="loadingActuator">Updating LED…</div>
-            </div>
-          </div>
-
           <div class="mt-6 flex items-center gap-2">
             <button
               type="button"
@@ -175,7 +127,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useSensorData } from '../composables/useSensorData'
-import api from '@/services/api'
 import { useI18n } from '@/i18n'
 
 const { m } = useI18n()
@@ -196,37 +147,6 @@ const {
 } = useSensorData(2000)
 
 const isPolling = ref(false)
-const actuatorState = ref<'ON' | 'OFF' | null>(null)
-const loadingActuator = ref(false)
-const actuatorError = ref<string | null>(null)
-
-const loadActuatorStatus = async () => {
-  loadingActuator.value = true
-  actuatorError.value = null
-  try {
-    const res = await api.get('/actuator/status')
-    const current = String(res.data?.data?.current_state || '').toUpperCase()
-    actuatorState.value = current === 'ON' ? 'ON' : current === 'OFF' ? 'OFF' : null
-  } catch (err: any) {
-    actuatorError.value = err.response?.data?.message || err.message || 'Error loading actuator status'
-  } finally {
-    loadingActuator.value = false
-  }
-}
-
-const setActuator = async (state: 'ON' | 'OFF') => {
-  loadingActuator.value = true
-  actuatorError.value = null
-  try {
-    const res = await api.post('/actuator', { state })
-    const current = String(res.data?.data?.current_state || '').toUpperCase()
-    actuatorState.value = current === 'ON' ? 'ON' : current === 'OFF' ? 'OFF' : state
-  } catch (err: any) {
-    actuatorError.value = err.response?.data?.message || err.message || 'Error updating actuator state'
-  } finally {
-    loadingActuator.value = false
-  }
-}
 
 const start = () => {
   if (!selectedDeviceId.value) return
@@ -268,7 +188,6 @@ onMounted(async () => {
     await fetchLatest()
     start()
   }
-  await loadActuatorStatus()
 })
 
 const pollingLabel = computed(() => (isPolling.value ? m.value.sensorsUi.live : m.value.sensorsUi.paused))

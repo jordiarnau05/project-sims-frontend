@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <img class="mx-auto h-10 w-auto" src="@/assets/logo/logo-white.svg" alt="Fleetly" />
+      <img class="mx-auto h-20 w-auto object-contain" src="/image.png" alt="SIMS" />
       <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Create your account</h2>
     </div>
 
@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
-import { useAuth } from '@/modules/auth/composables/useAuth'
+import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
 const { register, isLoading, error } = useAuth()

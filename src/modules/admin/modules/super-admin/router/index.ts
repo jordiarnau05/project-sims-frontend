@@ -4,13 +4,13 @@ export const superAdminRoutes: RouteRecordRaw[] = [
   {
     path: 'super-admin',
     name: 'SuperAdminOverview',
-    component: () => import('../pages/SuperAdminOverviewPage.vue'),
-    meta: { title: 'Super Admin Overview', requiresAuth: true, requiresAdmin: true, requiresSuperAdmin: true }
+    redirect: '/admin/users',
+    meta: { requiresAuth: true, requiresAdmin: true, requiresSuperAdmin: true }
   },
   {
     path: 'tenant-workspace',
     name: 'TenantWorkspace',
-    component: () => import('../pages/TenantWorkspacePage.vue'),
-    meta: { title: 'Tenant Workspace', requiresAuth: true, requiresAdmin: true, requiresSuperAdmin: true }
+    redirect: '/admin/tenants',
+    meta: { requiresAuth: true, requiresAdmin: true, requiresSuperAdmin: true }
   }
 ]

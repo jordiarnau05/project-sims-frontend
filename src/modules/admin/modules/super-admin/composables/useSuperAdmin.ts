@@ -40,10 +40,10 @@ export function useSuperAdmin() {
     error.value = null
 
     try {
-      const tenantList = await loadTenants()
+      await loadTenants()
       const [vehiclesByTenant, usersByTenant] = await Promise.all([
-        loadVehiclesForTenants(tenantList),
-        loadUsersForTenants(tenantList),
+        loadVehiclesForSuperAdmin(),
+        loadUsersForSuperAdmin(),
       ])
 
       vehicles.value = vehiclesByTenant
@@ -71,66 +71,44 @@ export function useSuperAdmin() {
       email: row.email ?? null,
       active: Boolean(row.active),
     }))
+    // The central tenant is the SuperAdmin workspace, not an operational tenant.
     .filter((tenant) => tenant.id !== 'central')
 
     tenants.value = mapped
     return mapped
   }
 
-  const loadVehiclesForTenants = async (tenantList: SuperAdminTenant[]): Promise<SuperAdminVehicle[]> => {
-    const results = await Promise.all(
-      tenantList.map(async (tenant) => {
-        try {
-          const response = await api.get('/vehicles', {
-            params: { per_page: 300 },
-            headers: { 'X-Tenant': tenant.slug },
-          })
+  const loadVehiclesForSuperAdmin = async (): Promise<SuperAdminVehicle[]> => {
+    const response = await api.get('/vehicles', {
+      params: { per_page: 300 },
+    })
 
-          const rows = normalizeCollection(response.data)
-          return rows.map((row: AnyRecord) => ({
-            id: Number(row.id),
-            tenant_id: row.tenant_id ? String(row.tenant_id) : tenant.slug,
-            tenant_name: tenant.name,
-            license_plate: String(row.license_plate || '-'),
-            brand: row.brand ?? null,
-            model: row.model ?? null,
-            active: Boolean(row.active),
-          }))
-        } catch {
-          return []
-        }
-      })
-    )
-
-    return results.flat()
+    const rows = normalizeCollection(response.data)
+    return rows.map((row: AnyRecord) => ({
+      id: Number(row.id),
+      tenant_id: row.tenant_id ? String(row.tenant_id) : null,
+      tenant_name: String(row.tenant?.name || row.tenant_id || '-'),
+      license_plate: String(row.license_plate || '-'),
+      brand: row.brand ?? null,
+      model: row.model ?? null,
+      active: Boolean(row.active),
+    }))
   }
 
-  const loadUsersForTenants = async (tenantList: SuperAdminTenant[]): Promise<SuperAdminUser[]> => {
-    const results = await Promise.all(
-      tenantList.map(async (tenant) => {
-        try {
-          const response = await api.get('/users', {
-            headers: { 'X-Tenant': tenant.slug },
-          })
+  const loadUsersForSuperAdmin = async (): Promise<SuperAdminUser[]> => {
+    const response = await api.get('/users')
 
-          const rows = normalizeCollection(response.data)
-          return rows.map((row: AnyRecord) => ({
-            id: Number(row.id),
-            tenant_id: row.tenant_id ? String(row.tenant_id) : tenant.slug,
-            tenant_name: tenant.name,
-            name: String(row.name || '-'),
-            username: String(row.username || '-'),
-            email: String(row.email || '-'),
-            active: Boolean(row.active),
-            role_name: row.roles?.[0]?.name || '-',
-          }))
-        } catch {
-          return []
-        }
-      })
-    )
-
-    return results.flat()
+    const rows = normalizeCollection(response.data)
+    return rows.map((row: AnyRecord) => ({
+      id: Number(row.id),
+      tenant_id: row.tenant_id ? String(row.tenant_id) : null,
+      tenant_name: String(row.tenant?.name || row.tenant_id || '-'),
+      name: String(row.name || '-'),
+      username: String(row.username || '-'),
+      email: String(row.email || '-'),
+      active: Boolean(row.active),
+      role_name: row.roles?.[0]?.name || '-',
+    }))
   }
 
   return {
