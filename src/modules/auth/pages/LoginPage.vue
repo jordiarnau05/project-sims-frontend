@@ -8,6 +8,22 @@
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" @submit.prevent="handleSubmit">
         <div>
+          <label for="tenant" class="block text-sm/6 font-medium text-gray-100">Organization</label>
+          <div class="mt-2">
+            <input
+              id="tenant"
+              v-model="tenantSlug"
+              type="text"
+              autocomplete="organization"
+              required
+              placeholder="your-company-slug"
+              :disabled="isLoading"
+              class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+            />
+          </div>
+        </div>
+
+        <div>
           <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
           <div class="mt-2">
             <input
@@ -68,11 +84,12 @@ import { useAuth } from '../composables/useAuth'
 const router = useRouter()
 const { login, isLoading, error } = useAuth()
 
+const tenantSlug = ref('')
 const email = ref('')
 const password = ref('')
 
 const handleSubmit = async () => {
-  const success = await login(email.value, password.value)
+  const success = await login(tenantSlug.value, email.value, password.value)
   
   if (success) {
     router.push('/admin')

@@ -9,6 +9,7 @@ import { userRoutes } from '@/modules/admin/modules/users/router'
 import { vehicleRoutes } from '@/modules/admin/modules/vehicles/router'
 import { rolesRoutes } from '@/modules/admin/modules/roles/router'
 import { tenantRoutes } from '@/modules/admin/modules/tenants/router'
+import { superAdminRoutes } from '@/modules/admin/modules/super-admin/router'
 import { clientRoutes } from '@/modules/client/router'
 
 const routes: RouteRecordRaw[] = [
@@ -42,6 +43,7 @@ const routes: RouteRecordRaw[] = [
       ...userRoutes,
       ...rolesRoutes,
       ...tenantRoutes,
+      ...superAdminRoutes,
       {
         path: 'bookings',
         name: 'AdminBookings',
@@ -95,7 +97,14 @@ router.beforeEach(async (to, from, next) => {
     await fetchUser()
   }
 
-  const isAdmin = user.value?.roles?.some((r: any) => r.name === 'Admin') ?? false
+  // Treat any role containing "admin" (case-insensitive) as an administrative role
+  const isAdmin = user.value?.roles?.some((r: any) => {
+    return typeof r.name === 'string' && r.name.toLowerCase().includes('admin')
+  }) ?? false
+
+  const isSuperAdmin = user.value?.roles?.some((r: any) => {
+    return typeof r.name === 'string' && r.name.toLowerCase().includes('superadmin')
+  }) ?? false
 
   if (requiresAuth && !isAuthenticated.value) {
     // Protected route and not authenticated -> go to login
@@ -103,6 +112,9 @@ router.beforeEach(async (to, from, next) => {
   } else if (to.path.startsWith('/admin') && isAuthenticated.value && !isAdmin) {
     // Client trying to access admin area -> redirect to client home
     next('/')
+  } else if (to.meta.requiresSuperAdmin && isAuthenticated.value && !isSuperAdmin) {
+    // Admin without super-admin role cannot access global multi-tenant views
+    next('/admin')
   } else {
     next()
   }

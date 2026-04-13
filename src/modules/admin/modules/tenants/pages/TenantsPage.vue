@@ -95,6 +95,15 @@
               <span class="material-icons text-xl">edit</span>
               <span class="sr-only">Editar, {{ tenant.name }}</span>
             </router-link>
+            <router-link
+              :to="`/admin/tenant-workspace`"
+              class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+              title="Gestionar tenant"
+              @click="activateTenantContext(tenant.slug)"
+            >
+              <span class="material-icons text-xl">hub</span>
+              <span class="sr-only">Gestionar tenant, {{ tenant.name }}</span>
+            </router-link>
             <button
               @click="confirmDelete(tenant)"
               class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
@@ -210,5 +219,10 @@ const handleSearch = () => {
 const handlePageChange = (page: number) => {
   pagination.value.current_page = page
   loadTenants()
+}
+
+const activateTenantContext = (tenantSlug: string) => {
+  document.cookie = `tenant=${tenantSlug};path=/`
+  localStorage.setItem('active_admin_tenant', tenantSlug)
 }
 </script>

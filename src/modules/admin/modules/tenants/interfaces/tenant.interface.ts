@@ -1,5 +1,5 @@
 export interface Tenant {
-  id: number
+  id: string
   name: string
   slug: string
   tax_id: string | null
@@ -9,6 +9,14 @@ export interface Tenant {
   active: boolean
   users_count?: number
   vehicles_count?: number
+  created_at: string
+  updated_at: string
+}
+
+export interface TenantDomain {
+  id: number
+  domain: string
+  tenant_id: string
   created_at: string
   updated_at: string
 }

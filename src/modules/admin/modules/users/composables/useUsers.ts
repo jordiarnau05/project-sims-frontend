@@ -16,7 +16,9 @@ export function useUsers() {
   })
 
   const isCurrentUserAdmin = computed(() => {
-    return currentUser.value?.roles?.some((role: any) => role.name === 'Admin') ?? false
+    return currentUser.value?.roles?.some((role: any) => {
+      return typeof role.name === 'string' && role.name.toLowerCase().includes('admin')
+    }) ?? false
   })
 
   const getUsers = async (page = 1, filters: UserFilters = {}) => {

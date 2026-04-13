@@ -34,6 +34,7 @@ export interface User {
   username: string
   email: string
   active: boolean
+  tenant_id: string | null  // tenant slug (string primary key)
   roles: Role[]
 }
 

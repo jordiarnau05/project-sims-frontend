@@ -19,7 +19,7 @@ const apiClient = axios.create({
   }
 })
 
-// Interceptor to add token to all requests
+// Interceptor to add token and tenant to all requests
 apiClient.interceptors.request.use(
   (config) => {
     // Get token from cookies
@@ -29,7 +29,28 @@ apiClient.interceptors.request.use(
       ?.split('=')[1]
 
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${decodeURIComponent(token)}`
+    }
+
+    // Get active tenant slug from cookie (or localStorage fallback) and add X-Tenant header.
+    // Respect explicit per-request X-Tenant (used by Super Admin cross-tenant views).
+    let tenant = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('tenant='))
+      ?.split('=')[1]
+
+    if (!tenant) {
+      // Some flows set the active tenant in localStorage (admin workspace). Use it as fallback.
+      try {
+        tenant = localStorage.getItem('active_admin_tenant') || undefined
+      } catch (e) {
+        // ignore (e.g., SSR or blocked access)
+        tenant = undefined
+      }
+    }
+
+    if (tenant && !config.headers?.['X-Tenant']) {
+      config.headers['X-Tenant'] = decodeURIComponent(tenant as string)
     }
 
     return config

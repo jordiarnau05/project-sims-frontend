@@ -51,7 +51,7 @@ export function useTenants() {
     }
   }
 
-  const getTenant = async (id: number): Promise<Tenant> => {
+  const getTenant = async (id: string | number): Promise<Tenant> => {
     loading.value = true
     error.value = null
     try {
@@ -65,7 +65,7 @@ export function useTenants() {
     }
   }
 
-  const updateTenant = async (id: number, data: TenantForm): Promise<Tenant> => {
+  const updateTenant = async (id: string | number, data: TenantForm): Promise<Tenant> => {
     loading.value = true
     error.value = null
     try {
@@ -79,7 +79,7 @@ export function useTenants() {
     }
   }
 
-  const deleteTenant = async (id: number) => {
+  const deleteTenant = async (id: string | number) => {
     loading.value = true
     error.value = null
     try {
@@ -92,7 +92,7 @@ export function useTenants() {
     }
   }
 
-  const toggleActive = async (id: number): Promise<Tenant> => {
+  const toggleActive = async (id: string | number): Promise<Tenant> => {
     loading.value = true
     error.value = null
     try {

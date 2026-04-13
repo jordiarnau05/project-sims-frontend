@@ -105,7 +105,7 @@ const router = useRouter()
 const { getTenant, updateTenant, loading, error } = useTenants()
 
 const loadingTenant = ref(true)
-const tenantId = Number(route.params.id)
+const tenantId = String(route.params.id)
 
 const form = reactive<TenantForm>({
   name: '',

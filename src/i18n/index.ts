@@ -133,7 +133,7 @@ const messages = {
       profileUpdated: 'Perfil actualitzat correctament', profileError: 'Error actualitzant el perfil',
       passwordUpdated: 'Contrasenya actualitzada correctament', passwordError: 'Error actualitzant la contrasenya',
     },
-    adminNav: { dashboard: 'Tauler', map: 'Mapa', users: 'Usuaris', roles: 'Rols', bookings: 'Reserves', vehicles: 'Vehicles', tenants: 'Empreses', tickets: 'Tiquets' },
+    adminNav: { dashboard: 'Tauler', map: 'Mapa', users: 'Usuaris', roles: 'Rols', bookings: 'Reserves', vehicles: 'Vehicles', tenants: 'Empreses', superAdmin: 'Vista global', tenantWorkspace: 'Espai tenant', tickets: 'Tiquets' },
     admin: { notAuthorizedTitle: 'No autoritzat', notAuthorizedMsg: "El teu compte no té permís per accedir a l'àrea d'administració." },
   },
   es: {
@@ -266,7 +266,7 @@ const messages = {
       profileUpdated: 'Perfil actualizado correctamente', profileError: 'Error al actualizar el perfil',
       passwordUpdated: 'Contraseña actualizada correctamente', passwordError: 'Error al actualizar la contraseña',
     },
-    adminNav: { dashboard: 'Panel', map: 'Mapa', users: 'Usuarios', roles: 'Roles', bookings: 'Reservas', vehicles: 'Vehículos', tenants: 'Empresas', tickets: 'Tickets' },
+    adminNav: { dashboard: 'Panel', map: 'Mapa', users: 'Usuarios', roles: 'Roles', bookings: 'Reservas', vehicles: 'Vehículos', tenants: 'Empresas', superAdmin: 'Vista global', tenantWorkspace: 'Espacio tenant', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'No autorizado', notAuthorizedMsg: 'Tu cuenta no tiene permiso para acceder al área de administración.' },
   },
   en: {
@@ -399,7 +399,7 @@ const messages = {
       profileUpdated: 'Profile updated successfully', profileError: 'Error updating profile',
       passwordUpdated: 'Password updated successfully', passwordError: 'Error updating password',
     },
-    adminNav: { dashboard: 'Dashboard', map: 'Map', users: 'Users', roles: 'Roles', bookings: 'Bookings', vehicles: 'Vehicles', tenants: 'Tenants', tickets: 'Tickets' },
+    adminNav: { dashboard: 'Dashboard', map: 'Map', users: 'Users', roles: 'Roles', bookings: 'Bookings', vehicles: 'Vehicles', tenants: 'Tenants', superAdmin: 'Global view', tenantWorkspace: 'Tenant workspace', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'Not authorized', notAuthorizedMsg: 'Your account does not have permission to access the admin area.' },
   },
 }
