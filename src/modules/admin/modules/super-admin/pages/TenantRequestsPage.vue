@@ -55,6 +55,12 @@
 
         <div class="flex items-start gap-2">
           <button
+            class="rounded-md border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm font-semibold text-[var(--app-text)] shadow-sm hover:bg-[var(--app-surface-alt)]"
+            @click="copyCompanyUrl(r)"
+          >
+            Copiar link
+          </button>
+          <button
             v-if="r.status !== 'approved'"
             class="rounded-md bg-[var(--fleetly-baltic-blue)] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90"
             @click="approveReq(r.id)"
@@ -107,6 +113,17 @@ const companyUrl = (request: { slug: string; domain?: string | null }): string =
   const port = window.location.port ? `:${window.location.port}` : ''
   const domain = request.domain || `${request.slug}.${host}`
   return `${window.location.protocol}//${domain}${port}`
+}
+
+const copyCompanyUrl = async (request: { slug: string; domain?: string | null }) => {
+  const url = companyUrl(request)
+
+  try {
+    await navigator.clipboard.writeText(url)
+    alert('Link copiat al porta-retalls')
+  } catch {
+    alert(url)
+  }
 }
 
 onMounted(async () => {
