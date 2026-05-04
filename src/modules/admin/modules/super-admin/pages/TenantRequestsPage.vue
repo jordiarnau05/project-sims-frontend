@@ -1,24 +1,75 @@
 <template>
   <div class="p-6">
-    <PageHeading title="Tenant Requests" description="Review and approve company registration requests" />
+    <PageHeading
+      title="Empreses pendents"
+      description="Revisa, aprova i consulta el subdomini que tindrà cada empresa"
+    />
 
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+    <div v-if="loading" class="text-[var(--app-muted-text)]">Carregant...</div>
     <div v-if="error" class="text-red-600">{{ error }}</div>
 
-    <div v-if="!loading && requests.length === 0" class="text-gray-600">No pending requests</div>
+    <div v-if="!loading && requests.length === 0" class="text-[var(--app-muted-text)]">No hi ha sol·licituds d'empreses.</div>
 
-    <div v-for="r in requests" :key="r.id" class="border rounded p-4 mb-3">
-      <div class="flex justify-between">
-        <div>
-          <h3 class="font-semibold">{{ r.name }} <span class="text-sm text-gray-500">({{ r.slug }})</span></h3>
-          <div class="text-sm text-gray-600">{{ r.email }}</div>
-          <div class="text-xs text-gray-500 mt-2">Requested at: {{ r.requested_at }}</div>
+    <div v-for="r in requests" :key="r.id" class="mb-4 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-base font-semibold text-[var(--app-text)]">{{ r.name }}</h3>
+            <span class="rounded-full px-2 py-0.5 text-xs font-semibold"
+              :class="r.status === 'approved'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'
+                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200'"
+            >
+              {{ r.status === 'approved' ? 'Aprovada' : 'Pendent' }}
+            </span>
+          </div>
+
+          <div class="text-sm text-[var(--app-muted-text)]">Slug: <span class="font-mono text-[var(--app-text)]">{{ r.slug }}</span></div>
+          <div class="text-sm text-[var(--app-muted-text)]">Email de contacte: <span class="text-[var(--app-text)]">{{ r.email }}</span></div>
+          <div class="text-xs text-[var(--app-muted-text)]">
+            Sol·licitada: {{ formatDate(r.requested_at) }}
+          </div>
+
+          <div class="rounded-lg border border-dashed border-[var(--app-border)] bg-[var(--app-bg)] p-3 text-sm">
+            <div class="font-medium text-[var(--app-text)]">Link / subdomini previst</div>
+            <a
+              v-if="companyUrl(r)"
+              :href="companyUrl(r)"
+              target="_blank"
+              rel="noreferrer"
+              class="mt-1 block break-all font-mono text-[var(--fleetly-baltic-blue)] hover:underline"
+            >
+              {{ companyUrl(r) }}
+            </a>
+            <div v-else class="mt-1 text-[var(--app-muted-text)]">No s'ha pogut calcular el subdomini</div>
+          </div>
+
+          <div v-if="r.domain" class="text-xs text-[var(--app-muted-text)]">
+            Dominio creat: <span class="font-mono text-[var(--app-text)]">{{ r.domain }}</span>
+          </div>
+
+          <div v-if="r.notes" class="text-sm text-[var(--app-text)]">
+            <span class="font-medium">Notes:</span> {{ r.notes }}
+          </div>
         </div>
+
         <div class="flex items-start gap-2">
-          <button class="bg-green-600 text-white px-3 py-1 rounded" @click="approveReq(r.id)">Approve</button>
+          <button
+            v-if="r.status !== 'approved'"
+            class="rounded-md bg-[var(--fleetly-baltic-blue)] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90"
+            @click="approveReq(r.id)"
+          >
+            Aprovar empresa
+          </button>
+          <button
+            v-else
+            class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm cursor-default"
+            disabled
+          >
+            Ja aprovada
+          </button>
         </div>
       </div>
-      <div v-if="r.notes" class="mt-2 text-sm text-gray-700">Notes: {{ r.notes }}</div>
     </div>
   </div>
 </template>
@@ -27,18 +78,35 @@
 import { onMounted } from 'vue'
 import PageHeading from '@/modules/admin/components/PageHeading.vue'
 import { useTenantRequests } from '../composables/useTenantRequests'
-import { useI18n } from '@/i18n'
 
 const { loading, error, requests, load, approve } = useTenantRequests()
 
 const approveReq = async (id: number) => {
   try {
     await approve(id)
-    // simple toast
-    alert('Approved')
+    alert('Empresa aprovada')
   } catch (e: any) {
-    alert(e?.response?.data?.message || 'Failed to approve')
+    alert(e?.response?.data?.message || 'No s\'ha pogut aprovar')
   }
+}
+
+const formatDate = (value: string | null | undefined): string => {
+  if (!value) return '-'
+  const date = new Date(value)
+  return new Intl.DateTimeFormat('ca-ES', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
+}
+
+const companyUrl = (request: { slug: string; domain?: string | null }): string => {
+  const host = window.location.hostname
+  const port = window.location.port ? `:${window.location.port}` : ''
+  const domain = request.domain || `${request.slug}.${host}`
+  return `${window.location.protocol}//${domain}${port}`
 }
 
 onMounted(async () => {

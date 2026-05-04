@@ -607,7 +607,7 @@ const messages = {
       themeDark: 'Mode fosc',
       openUserMenu: 'Obrir menú d\'usuari',
     },
-    adminNav: { dashboard: 'Tauler', map: 'Mapa', users: 'Usuaris', roles: 'Rols', bookings: 'Reserves', vehicles: 'Vehicles', geofences: 'Geofencing', geofenceEvents: 'Events geofencing', tenants: 'Empreses', superAdmin: 'Vista global', tenantWorkspace: 'Espai tenant', tickets: 'Tiquets' },
+    adminNav: { dashboard: 'Tauler', map: 'Mapa', users: 'Usuaris', roles: 'Rols', bookings: 'Reserves', vehicles: 'Vehicles', geofences: 'Geofencing', geofenceEvents: 'Events geofencing', tenants: 'Empreses', tenantRequests: 'Sol·licituds empreses', superAdmin: 'Vista global', tenantWorkspace: 'Espai tenant', tickets: 'Tiquets' },
     admin: { notAuthorizedTitle: 'No autoritzat', notAuthorizedMsg: "El teu compte no té permís per accedir a l'àrea d'administració." },
   },
   es: {
@@ -1214,7 +1214,7 @@ const messages = {
       themeDark: 'Modo oscuro',
       openUserMenu: 'Abrir menú de usuario',
     },
-    adminNav: { dashboard: 'Panel', map: 'Mapa', users: 'Usuarios', roles: 'Roles', bookings: 'Reservas', vehicles: 'Vehículos', geofences: 'Geofencing', geofenceEvents: 'Eventos geofencing', tenants: 'Empresas', superAdmin: 'Vista global', tenantWorkspace: 'Espacio tenant', tickets: 'Tickets' },
+    adminNav: { dashboard: 'Panel', map: 'Mapa', users: 'Usuarios', roles: 'Roles', bookings: 'Reservas', vehicles: 'Vehículos', geofences: 'Geofencing', geofenceEvents: 'Eventos geofencing', tenants: 'Empresas', tenantRequests: 'Solicitudes de empresas', superAdmin: 'Vista global', tenantWorkspace: 'Espacio tenant', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'No autorizado', notAuthorizedMsg: 'Tu cuenta no tiene permiso para acceder al área de administración.' },
   },
   en: {
@@ -1821,7 +1821,7 @@ const messages = {
       themeDark: 'Dark mode',
       openUserMenu: 'Open user menu',
     },
-    adminNav: { dashboard: 'Dashboard', map: 'Map', users: 'Users', roles: 'Roles', bookings: 'Bookings', vehicles: 'Vehicles', geofences: 'Geofences', geofenceEvents: 'Geofence events', tenants: 'Tenants', superAdmin: 'Global view', tenantWorkspace: 'Tenant workspace', tickets: 'Tickets' },
+    adminNav: { dashboard: 'Dashboard', map: 'Map', users: 'Users', roles: 'Roles', bookings: 'Bookings', vehicles: 'Vehicles', geofences: 'Geofences', geofenceEvents: 'Geofence events', tenants: 'Tenants', tenantRequests: 'Company requests', superAdmin: 'Global view', tenantWorkspace: 'Tenant workspace', tickets: 'Tickets' },
     admin: { notAuthorizedTitle: 'Not authorized', notAuthorizedMsg: 'Your account does not have permission to access the admin area.' },
   },
 }

@@ -275,6 +275,7 @@ const navigationItems = [
   { key: 'geofences', href: '/admin/geofences', icon: MapPinIcon },
   { key: 'geofenceEvents', href: '/admin/geofence-events', icon: ExclamationTriangleIcon },
   { key: 'tenants', href: '/admin/tenants', icon: BuildingOfficeIcon, superAdminOnly: true },
+  { key: 'tenantRequests', href: '/admin/tenant-requests', icon: BuildingOfficeIcon, superAdminOnly: true },
   { key: 'tickets', href: '/admin/tickets', icon: TicketIcon },
 ]
 
