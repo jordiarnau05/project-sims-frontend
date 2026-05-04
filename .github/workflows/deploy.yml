@@ -11,17 +11,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Check SSH port reachable
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST_IP }}
-          DEPLOY_PORT: '1303'
         run: |
-          if [ -z "$DEPLOY_HOST" ]; then
-            echo "::error::Missing DEPLOY_HOST_IP secret"
-            exit 1
-          fi
           sudo apt-get update
           sudo apt-get install -y netcat-openbsd
-          nc -vz -w 5 "$DEPLOY_HOST" "$DEPLOY_PORT"
+          # Fem servir 1303 directament per evitar que el script interpreti malament la variable
+          nc -vz -w 5 ${{ secrets.DEPLOY_HOST_IP }} 1303
 
       - name: Install and Build
         run: |
