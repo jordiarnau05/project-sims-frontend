@@ -11,58 +11,60 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Check SSH port reachable
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST_IP || 'jordiarnau.iemhosting.asix2.iesmontsia.cat' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y netcat-openbsd
-          # Fem servir 1303 directament per evitar que el script interpreti malament la variable
-          nc -vz -w 5 "$DEPLOY_HOST" 1303
+          nc -vz -w 5 ${{ secrets.DEPLOY_HOST_IP }} 1303
 
       - name: Install and Build
         run: |
           npm ci
           npm run build
-          # Verifiquem que la carpeta de compilació s'ha generat
+          # Verifiquem que la carpeta existisca
           ls -la dist
 
       - name: Prepare remote folder
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.DEPLOY_HOST_IP || 'jordiarnau.iemhosting.asix2.iesmontsia.cat' }}
+          host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 1303
           script: |
-            # Creem el directori i ens assegurem que l'usuari de deploy en sigui el propietari
+            # Creem la ruta base si no existeix
             sudo mkdir -p /var/www/sims-front/dist
+            # Donem permisos a l'usuari de deploy sobre tota la carpeta del projecte
             sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} /var/www/sims-front
-            # Netegem el contingut anterior per evitar fitxers vells
+            # Netegem només el contingut de dist per a la nova pujada
             rm -rf /var/www/sims-front/dist/*
 
       - name: Upload Files (SCP)
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.DEPLOY_HOST_IP || 'jordiarnau.iemhosting.asix2.iesmontsia.cat' }}
+          host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 1303
           source: "dist/*"
-          target: "/var/www/sims-front/dist"
-          strip_components: 1
+          target: "/var/www/sims-front"
+          # strip_components: 1 fa que "dist/index.html" s'entengui com a "index.html"
+          # Per tant, el target ha de ser la carpeta PARE (/var/www/sims-front)
+          # perquè en pujar-ho es crei/ompli la carpeta dist correctament.
+          strip_components: 0 
 
       - name: Reload Web Server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.DEPLOY_HOST_IP || 'jordiarnau.iemhosting.asix2.iesmontsia.cat' }}
+          host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 1303
           script: |
-            # Cambiem nginx per apache2 que és el servidor que tens actiu
+            # Validem Apache2 i recarreguem
             if sudo systemctl is-active --quiet apache2; then
               sudo systemctl reload apache2
               echo "Apache2 reloaded"
             else
-              echo "Apache2 is not active; skipping reload"
+              echo "Apache2 is not active; checking if it needs to be started"
+              sudo systemctl start apache2 || echo "Could not start Apache2"
             fi
