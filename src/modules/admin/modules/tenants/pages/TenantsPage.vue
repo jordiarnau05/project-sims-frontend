@@ -7,6 +7,14 @@
     >
       <template #actions>
         <router-link
+          v-if="isSuperAdmin"
+          to="/admin/tenant-requests"
+          class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50
+                 dark:bg-white/10 dark:text-white dark:ring-white/5 dark:hover:bg-white/20"
+        >
+          {{ m.adminNav.tenantRequests }}
+        </router-link>
+        <router-link
           to="/admin/tenants/create"
           class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
@@ -138,9 +146,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useTenants } from '../composables/useTenants'
 import { useI18n } from '@/i18n'
+import { useAuth } from '@/modules/auth/composables/useAuth'
 import type { Tenant, TenantFilters } from '../interfaces/tenant.interface'
 import AdminsTable from '@/modules/admin/components/AdminsTable.vue'
 import AdminTd from '@/modules/admin/components/AdminTd.vue'
@@ -150,7 +159,12 @@ import StatusBadge from '@/modules/admin/components/StatusBadge.vue'
 import ConfirmDialog from '@/modules/admin/components/ConfirmDialog.vue'
 
 const { tenants, loading, error, pagination, getTenants, deleteTenant, toggleActive } = useTenants()
+const { user } = useAuth()
 const { m } = useI18n()
+
+const isSuperAdmin = computed(() =>
+  !!(user.value?.roles && user.value.roles.some((role: any) => (role?.name || '').toLowerCase().includes('superadmin')))
+)
 
 // Delete state
 const showDeleteDialog = ref(false)
